@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 
-export default function App() {
+function App() {
   const bedrijven = [
     {
       naam: "Cafetaria Ten Beste Corner B.V.",
@@ -128,4 +128,5 @@ export default function App() {
     </div>
   );
 }
-}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
