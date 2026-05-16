@@ -1,68 +1,129 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
+import { useState } from "react";
 
-function App() {
+export default function App() {
+  const bedrijven = [
+    {
+      naam: "Cafetaria Ten Beste Corner B.V.",
+      kvk: "98498762",
+      btw: "NL868520895B01",
+      iban: "NL85ABNA0120545004",
+    },
+    {
+      naam: "Ten Beste Investment B.V.",
+      kvk: "98613375",
+      btw: "NL868569021B01",
+      iban: "NL03ABNA0149841159",
+    },
+  ];
+
+  const [bedrijfIndex, setBedrijfIndex] = useState(0);
+
+  const actiefBedrijf = bedrijven[bedrijfIndex];
+
   return (
-    <div style={{ fontFamily: "Arial", minHeight: "100vh", background: "#fff7ed" }}>
-      <header style={{
-        padding: "24px 40px",
-        background: "white",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        boxShadow: "0 2px 12px #00000010"
-      }}>
-        <h1 style={{ color: "#f4a14b", margin: 0 }}>Ten Beste Facturatie</h1>
-        <button style={{
-          background: "#f4a14b",
-          color: "white",
-          border: 0,
-          padding: "12px 20px",
-          borderRadius: "10px",
-          fontWeight: "bold"
-        }}>
-          Inloggen
-        </button>
+    <div
+      style={{
+        fontFamily: "Arial",
+        background: "#f4eee5",
+        minHeight: "100vh",
+      }}
+    >
+      <header
+        style={{
+          background: "white",
+          padding: "20px 30px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h1 style={{ color: "#e79a3b" }}>Ten Beste Facturatie</h1>
+
+        <select
+          value={bedrijfIndex}
+          onChange={(e) => setBedrijfIndex(Number(e.target.value))}
+          style={{
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+          }}
+        >
+          {bedrijven.map((bedrijf, index) => (
+            <option key={index} value={index}>
+              {bedrijf.naam}
+            </option>
+          ))}
+        </select>
       </header>
 
-      <main style={{ padding: "40px" }}>
-        <section style={{
-          background: "white",
-          borderRadius: "20px",
-          padding: "40px",
-          marginBottom: "30px"
-        }}>
-          <h2>Welkom bij jullie facturatiesysteem</h2>
-          <p>Maak facturen, beheer klanten en verstuur straks automatisch iDEAL-betaallinks.</p>
-        </section>
+      <div style={{ padding: "30px" }}>
+        <div
+          style={{
+            background: "white",
+            padding: "30px",
+            borderRadius: "20px",
+            marginBottom: "20px",
+          }}
+        >
+          <h2>{actiefBedrijf.naam}</h2>
 
-        <section style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "20px"
-        }}>
-          <Card title="Klanten" value="0" />
-          <Card title="Facturen" value="0" />
-          <Card title="Openstaand" value="€ 0,00" />
-          <Card title="Betaald" value="€ 0,00" />
-        </section>
-      </main>
+          <p>KvK: {actiefBedrijf.kvk}</p>
+          <p>BTW: {actiefBedrijf.btw}</p>
+          <p>IBAN: {actiefBedrijf.iban}</p>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "20px",
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: "25px",
+              borderRadius: "20px",
+            }}
+          >
+            <h3>Klanten</h3>
+            <h1>0</h1>
+          </div>
+
+          <div
+            style={{
+              background: "white",
+              padding: "25px",
+              borderRadius: "20px",
+            }}
+          >
+            <h3>Facturen</h3>
+            <h1>0</h1>
+          </div>
+
+          <div
+            style={{
+              background: "white",
+              padding: "25px",
+              borderRadius: "20px",
+            }}
+          >
+            <h3>Openstaand</h3>
+            <h1>€ 0,00</h1>
+          </div>
+
+          <div
+            style={{
+              background: "white",
+              padding: "25px",
+              borderRadius: "20px",
+            }}
+          >
+            <h3>Betaald</h3>
+            <h1>€ 0,00</h1>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-function Card({ title, value }) {
-  return (
-    <div style={{
-      background: "white",
-      padding: "24px",
-      borderRadius: "18px",
-      boxShadow: "0 4px 18px #00000010"
-    }}>
-      <p style={{ color: "#666" }}>{title}</p>
-      <h2>{value}</h2>
-    </div>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
