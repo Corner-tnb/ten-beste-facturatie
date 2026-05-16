@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import ReactDOM from "react-dom/client";
 
 export default function App() {
   const bedrijven = [
@@ -126,4 +127,5 @@ export default function App() {
       </div>
     </div>
   );
+}
 }
