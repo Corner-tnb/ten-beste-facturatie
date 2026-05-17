@@ -1,9 +1,13 @@
 import React, { useState } from "react";
+import { jsPDF } from "jspdf";
 
 export default function App() {
   const bedrijven = [
     {
       naam: "Cafetaria Ten Beste Corner B.V.",
+      adres: "Voorstraat 12",
+      plaats: "3512 AN Utrecht",
+      land: "Nederland",
       kvk: "98498762",
       btw: "NL868520895B01",
       iban: "NL85ABNA0120545004",
@@ -12,6 +16,9 @@ export default function App() {
     },
     {
       naam: "Ten Beste Investment B.V.",
+      adres: "",
+      plaats: "",
+      land: "Nederland",
       kvk: "98613375",
       btw: "NL868569021B01",
       iban: "NL03ABNA0149841159",
@@ -49,16 +56,15 @@ export default function App() {
 
   const actiefBedrijf = bedrijven[bedrijfIndex];
 
-  const klantenVoorBedrijf = klanten.filter(
-    (klant) => klant.bedrijf === actiefBedrijf.naam
-  );
-
-  const facturenVoorBedrijf = facturen.filter(
-    (factuur) => factuur.bedrijf === actiefBedrijf.naam
-  );
+  const klantenVoorBedrijf = klanten.filter((k) => k.bedrijf === actiefBedrijf.naam);
+  const facturenVoorBedrijf = facturen.filter((f) => f.bedrijf === actiefBedrijf.naam);
 
   function updateKlant(e) {
     setKlantFormulier({ ...klantFormulier, [e.target.name]: e.target.value });
+  }
+
+  function updateFactuur(e) {
+    setFactuurFormulier({ ...factuurFormulier, [e.target.name]: e.target.value });
   }
 
   function klantOpslaan(e) {
@@ -70,11 +76,7 @@ export default function App() {
     }
 
     setKlanten([
-      {
-        id: Date.now(),
-        bedrijf: actiefBedrijf.naam,
-        ...klantFormulier,
-      },
+      { id: Date.now(), bedrijf: actiefBedrijf.naam, ...klantFormulier },
       ...klanten,
     ]);
 
@@ -94,13 +96,6 @@ export default function App() {
     });
   }
 
-  function updateFactuur(e) {
-    setFactuurFormulier({
-      ...factuurFormulier,
-      [e.target.name]: e.target.value,
-    });
-  }
-
   function maakFactuurnummer() {
     const aantal = facturenVoorBedrijf.length + actiefBedrijf.startNummer;
     return actiefBedrijf.factuurPrefix + String(aantal).padStart(4, "0");
@@ -109,17 +104,10 @@ export default function App() {
   function factuurOpslaan(e) {
     e.preventDefault();
 
-    const klant = klanten.find(
-      (k) => String(k.id) === String(factuurFormulier.klantId)
-    );
+    const klant = klanten.find((k) => String(k.id) === String(factuurFormulier.klantId));
 
     if (!klant) {
       alert("Kies eerst een klant.");
-      return;
-    }
-
-    if (!factuurFormulier.omschrijving || !factuurFormulier.prijs) {
-      alert("Vul omschrijving en prijs in.");
       return;
     }
 
@@ -131,24 +119,25 @@ export default function App() {
     const btwBedrag = subtotaal * (btwPercentage / 100);
     const totaal = subtotaal + btwBedrag;
 
-    const nieuweFactuur = {
-      id: Date.now(),
-      bedrijf: actiefBedrijf.naam,
-      nummer: maakFactuurnummer(),
-      datum: new Date().toLocaleDateString("nl-NL"),
-      klantNaam:
-        klant.bedrijfsnaam || `${klant.voornaam} ${klant.achternaam}`,
-      omschrijving: factuurFormulier.omschrijving,
-      aantal,
-      prijs,
-      btwPercentage,
-      subtotaal,
-      btwBedrag,
-      totaal,
-      status: "Open",
-    };
-
-    setFacturen([nieuweFactuur, ...facturen]);
+    setFacturen([
+      {
+        id: Date.now(),
+        bedrijf: actiefBedrijf.naam,
+        nummer: maakFactuurnummer(),
+        datum: new Date().toLocaleDateString("nl-NL"),
+        klant,
+        klantNaam: klant.bedrijfsnaam || `${klant.voornaam} ${klant.achternaam}`,
+        omschrijving: factuurFormulier.omschrijving,
+        aantal,
+        prijs,
+        btwPercentage,
+        subtotaal,
+        btwBedrag,
+        totaal,
+        status: "Open",
+      },
+      ...facturen,
+    ]);
 
     setFactuurFormulier({
       klantId: "",
@@ -159,28 +148,70 @@ export default function App() {
     });
   }
 
-  const openstaand = facturenVoorBedrijf
-    .filter((f) => f.status === "Open")
-    .reduce((sum, f) => sum + f.totaal, 0);
+  function downloadPdf(factuur) {
+    const doc = new jsPDF();
 
-  const betaald = facturenVoorBedrijf
-    .filter((f) => f.status === "Betaald")
-    .reduce((sum, f) => sum + f.totaal, 0);
+    doc.setFontSize(20);
+    doc.text("FACTUUR", 160, 20);
+
+    doc.setFontSize(11);
+    doc.text(actiefBedrijf.naam, 20, 25);
+    doc.text(actiefBedrijf.adres || "-", 20, 32);
+    doc.text(actiefBedrijf.plaats || "-", 20, 39);
+    doc.text(actiefBedrijf.land, 20, 46);
+    doc.text(`KvK-nr: ${actiefBedrijf.kvk}`, 20, 56);
+    doc.text(`BTW-nr: ${actiefBedrijf.btw}`, 20, 63);
+    doc.text(`Bank: ${actiefBedrijf.iban}`, 20, 70);
+
+    doc.text(factuur.klantNaam, 20, 90);
+    doc.text(factuur.klant.adres || "-", 20, 97);
+    doc.text(`${factuur.klant.postcode || ""} ${factuur.klant.plaats || ""}`, 20, 104);
+    doc.text(factuur.klant.land || "Nederland", 20, 111);
+
+    doc.text(`Nummer: ${factuur.nummer}`, 140, 90);
+    doc.text(`Datum: ${factuur.datum}`, 140, 97);
+
+    doc.line(20, 130, 190, 130);
+    doc.text("Producten", 20, 140);
+    doc.text("Aantal", 100, 140);
+    doc.text("Prijs", 125, 140);
+    doc.text("Totaal", 160, 140);
+    doc.line(20, 145, 190, 145);
+
+    doc.text(factuur.omschrijving, 20, 155);
+    doc.text(String(factuur.aantal), 100, 155);
+    doc.text(euro(factuur.prijs), 125, 155);
+    doc.text(euro(factuur.subtotaal), 160, 155);
+
+    doc.text(`Subtotaal: ${euro(factuur.subtotaal)}`, 125, 180);
+    doc.text(`BTW ${factuur.btwPercentage}%: ${euro(factuur.btwBedrag)}`, 125, 188);
+
+    doc.setFontSize(14);
+    doc.text(`Totaal: ${euro(factuur.totaal)}`, 125, 200);
+
+    doc.setFontSize(10);
+    doc.text(
+      "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum over te maken onder vermelding van het factuurnummer.",
+      20,
+      240,
+      { maxWidth: 170 }
+    );
+
+    doc.text(`${actiefBedrijf.naam} * IBAN: ${actiefBedrijf.iban}`, 20, 275);
+    doc.text(`BTW nummer: ${actiefBedrijf.btw} * KvK nummer: ${actiefBedrijf.kvk}`, 20, 282);
+
+    doc.save(`Factuur ${factuur.nummer}.pdf`);
+  }
+
+  const openstaand = facturenVoorBedrijf.filter((f) => f.status === "Open").reduce((s, f) => s + f.totaal, 0);
 
   return (
     <div style={{ fontFamily: "Arial", background: "#f4eee5", minHeight: "100vh" }}>
       <header style={styles.header}>
         <h1 style={{ color: "#e79a3b", margin: 0 }}>Ten Beste Facturatie</h1>
-
-        <select
-          value={bedrijfIndex}
-          onChange={(e) => setBedrijfIndex(Number(e.target.value))}
-          style={styles.select}
-        >
+        <select value={bedrijfIndex} onChange={(e) => setBedrijfIndex(Number(e.target.value))} style={styles.select}>
           {bedrijven.map((bedrijf, index) => (
-            <option key={index} value={index}>
-              {bedrijf.naam}
-            </option>
+            <option key={index} value={index}>{bedrijf.naam}</option>
           ))}
         </select>
       </header>
@@ -198,35 +229,12 @@ export default function App() {
           <Card title="Klanten" value={klantenVoorBedrijf.length} />
           <Card title="Facturen" value={facturenVoorBedrijf.length} />
           <Card title="Openstaand" value={euro(openstaand)} />
-          <Card title="Betaald" value={euro(betaald)} />
+          <Card title="Betaald" value="€ 0,00" />
         </section>
 
         <section style={styles.grid}>
           <form onSubmit={klantOpslaan} style={styles.panel}>
             <h2>Nieuwe klant</h2>
-
-            <label>
-              <input
-                type="radio"
-                name="type"
-                value="Bedrijf"
-                checked={klantFormulier.type === "Bedrijf"}
-                onChange={updateKlant}
-              />{" "}
-              Bedrijf
-            </label>
-
-            <label style={{ marginLeft: "20px" }}>
-              <input
-                type="radio"
-                name="type"
-                value="Particulier"
-                checked={klantFormulier.type === "Particulier"}
-                onChange={updateKlant}
-              />{" "}
-              Particulier
-            </label>
-
             <Input name="bedrijfsnaam" label="Bedrijfsnaam" value={klantFormulier.bedrijfsnaam} onChange={updateKlant} />
             <Input name="adres" label="Adres" value={klantFormulier.adres} onChange={updateKlant} />
             <Input name="postcode" label="Postcode" value={klantFormulier.postcode} onChange={updateKlant} />
@@ -234,24 +242,15 @@ export default function App() {
             <Input name="land" label="Land" value={klantFormulier.land} onChange={updateKlant} />
             <Input name="kvk" label="KvK-nummer" value={klantFormulier.kvk} onChange={updateKlant} />
             <Input name="btw" label="BTW-nummer" value={klantFormulier.btw} onChange={updateKlant} />
-            <Input name="voornaam" label="Voornaam contactpersoon" value={klantFormulier.voornaam} onChange={updateKlant} />
-            <Input name="achternaam" label="Achternaam contactpersoon" value={klantFormulier.achternaam} onChange={updateKlant} />
             <Input name="email" label="E-mailadres" value={klantFormulier.email} onChange={updateKlant} />
             <Input name="telefoon" label="Telefoonnummer" value={klantFormulier.telefoon} onChange={updateKlant} />
-
             <Button>Klant opslaan</Button>
           </form>
 
           <form onSubmit={factuurOpslaan} style={styles.panel}>
             <h2>Nieuwe factuur</h2>
-
             <label style={styles.label}>Klant</label>
-            <select
-              name="klantId"
-              value={factuurFormulier.klantId}
-              onChange={updateFactuur}
-              style={styles.input}
-            >
+            <select name="klantId" value={factuurFormulier.klantId} onChange={updateFactuur} style={styles.input}>
               <option value="">Kies klant</option>
               {klantenVoorBedrijf.map((klant) => (
                 <option key={klant.id} value={klant.id}>
@@ -265,12 +264,7 @@ export default function App() {
             <Input name="prijs" label="Prijs excl. BTW" value={factuurFormulier.prijs} onChange={updateFactuur} />
 
             <label style={styles.label}>BTW</label>
-            <select
-              name="btwPercentage"
-              value={factuurFormulier.btwPercentage}
-              onChange={updateFactuur}
-              style={styles.input}
-            >
+            <select name="btwPercentage" value={factuurFormulier.btwPercentage} onChange={updateFactuur} style={styles.input}>
               <option value="9">9%</option>
               <option value="21">21%</option>
               <option value="0">0%</option>
@@ -280,41 +274,23 @@ export default function App() {
           </form>
         </section>
 
-        <section style={styles.grid}>
-          <div style={styles.panel}>
-            <h2>Klantenlijst</h2>
-            {klantenVoorBedrijf.length === 0 ? (
-              <p>Nog geen klanten toegevoegd.</p>
-            ) : (
-              klantenVoorBedrijf.map((klant) => (
-                <div key={klant.id} style={styles.item}>
-                  <strong>{klant.bedrijfsnaam || `${klant.voornaam} ${klant.achternaam}`}</strong>
-                  <p>{klant.adres}, {klant.postcode} {klant.plaats}</p>
-                  <p>{klant.email}</p>
-                  <p>{klant.telefoon}</p>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div style={styles.panel}>
-            <h2>Facturenlijst</h2>
-            {facturenVoorBedrijf.length === 0 ? (
-              <p>Nog geen facturen gemaakt.</p>
-            ) : (
-              facturenVoorBedrijf.map((factuur) => (
-                <div key={factuur.id} style={styles.item}>
-                  <strong>{factuur.nummer}</strong>
-                  <p>{factuur.klantNaam}</p>
-                  <p>{factuur.omschrijving}</p>
-                  <p>Subtotaal: {euro(factuur.subtotaal)}</p>
-                  <p>BTW {factuur.btwPercentage}%: {euro(factuur.btwBedrag)}</p>
-                  <h3>Totaal: {euro(factuur.totaal)}</h3>
-                  <p>Status: {factuur.status}</p>
-                </div>
-              ))
-            )}
-          </div>
+        <section style={styles.panel}>
+          <h2>Facturenlijst</h2>
+          {facturenVoorBedrijf.length === 0 ? (
+            <p>Nog geen facturen gemaakt.</p>
+          ) : (
+            facturenVoorBedrijf.map((factuur) => (
+              <div key={factuur.id} style={styles.item}>
+                <strong>{factuur.nummer}</strong>
+                <p>{factuur.klantNaam}</p>
+                <p>{factuur.omschrijving}</p>
+                <h3>Totaal: {euro(factuur.totaal)}</h3>
+                <button onClick={() => downloadPdf(factuur)} style={styles.button}>
+                  Download PDF
+                </button>
+              </div>
+            ))
+          )}
         </section>
       </main>
     </div>
@@ -334,13 +310,7 @@ function Input({ label, name, value, onChange }) {
   return (
     <div style={{ marginTop: "15px" }}>
       <label style={styles.label}>{label}</label>
-      <input
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={label}
-        style={styles.input}
-      />
+      <input name={name} value={value} onChange={onChange} placeholder={label} style={styles.input} />
     </div>
   );
 }
@@ -350,10 +320,7 @@ function Button({ children }) {
 }
 
 function euro(value) {
-  return new Intl.NumberFormat("nl-NL", {
-    style: "currency",
-    currency: "EUR",
-  }).format(value || 0);
+  return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(value || 0);
 }
 
 const styles = {
@@ -365,53 +332,14 @@ const styles = {
     alignItems: "center",
     boxShadow: "0 2px 12px #00000010",
   },
-  select: {
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
-  },
-  panel: {
-    background: "white",
-    padding: "30px",
-    borderRadius: "20px",
-    marginBottom: "25px",
-  },
-  stats: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "20px",
-    marginBottom: "25px",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "25px",
-    marginBottom: "25px",
-  },
-  card: {
-    background: "white",
-    padding: "25px",
-    borderRadius: "20px",
-    boxShadow: "0 4px 18px #00000010",
-  },
-  item: {
-    border: "1px solid #eee",
-    borderRadius: "14px",
-    padding: "16px",
-    marginBottom: "12px",
-  },
-  label: {
-    display: "block",
-    marginBottom: "6px",
-    fontWeight: "bold",
-  },
-  input: {
-    width: "100%",
-    padding: "13px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    fontSize: "15px",
-  },
+  select: { padding: "12px", borderRadius: "10px", border: "1px solid #ccc" },
+  panel: { background: "white", padding: "30px", borderRadius: "20px", marginBottom: "25px" },
+  stats: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "25px" },
+  grid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px", marginBottom: "25px" },
+  card: { background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 4px 18px #00000010" },
+  item: { border: "1px solid #eee", borderRadius: "14px", padding: "16px", marginBottom: "12px" },
+  label: { display: "block", marginBottom: "6px", marginTop: "12px", fontWeight: "bold" },
+  input: { width: "100%", padding: "13px", border: "1px solid #ddd", borderRadius: "10px", fontSize: "15px" },
   button: {
     marginTop: "20px",
     background: "#e79a3b",
