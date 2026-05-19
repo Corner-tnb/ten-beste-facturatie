@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
-import { supabase } from "./supabase";
+import { supabase } from "./supabase.js";
 
 export default function App() {
   const bedrijven = [
