@@ -99,11 +99,11 @@ const nieuweKlant = {
       .insert([nieuweKlant])
       .select();
 
-    if (error) {
-      alert("Opslaan mislukt");
-      console.error(error);
-      return;
-    }
+if (error) {
+  alert("Opslaan mislukt: " + error.message);
+  console.error("Supabase error:", error);
+  return;
+}
 
     setKlanten([data[0], ...klanten]);
 
