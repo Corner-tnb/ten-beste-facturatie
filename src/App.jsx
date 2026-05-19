@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
+import { supabase } from "./supabase";
 
 export default function App() {
   const bedrijven = [
@@ -32,12 +33,10 @@ export default function App() {
   const [facturen, setFacturen] = useState([]);
 
   const [klantFormulier, setKlantFormulier] = useState({
-    type: "Bedrijf",
     bedrijfsnaam: "",
     adres: "",
     postcode: "",
     plaats: "",
-    land: "Nederland",
     kvk: "",
     btw: "",
     voornaam: "",
@@ -56,8 +55,20 @@ export default function App() {
 
   const actiefBedrijf = bedrijven[bedrijfIndex];
 
-  const klantenVoorBedrijf = klanten.filter((k) => k.bedrijf === actiefBedrijf.naam);
-  const facturenVoorBedrijf = facturen.filter((f) => f.bedrijf === actiefBedrijf.naam);
+  useEffect(() => {
+    laadKlanten();
+  }, []);
+
+  async function laadKlanten() {
+    const { data, error } = await supabase
+      .from("klanten")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (!error) {
+      setKlanten(data || []);
+    }
+  }
 
   function updateKlant(e) {
     setKlantFormulier({ ...klantFormulier, [e.target.name]: e.target.value });
@@ -67,26 +78,39 @@ export default function App() {
     setFactuurFormulier({ ...factuurFormulier, [e.target.name]: e.target.value });
   }
 
-  function klantOpslaan(e) {
+  async function klantOpslaan(e) {
     e.preventDefault();
 
-    if (!klantFormulier.bedrijfsnaam && !klantFormulier.voornaam) {
-      alert("Vul minimaal een bedrijfsnaam of voornaam in.");
+    const nieuweKlant = {
+      bedrijfsnaam: klantFormulier.bedrijfsnaam,
+      contactpersoon: `${klantFormulier.voornaam} ${klantFormulier.achternaam}`,
+      email: klantFormulier.email,
+      telefoon: klantFormulier.telefoon,
+      adres: klantFormulier.adres,
+      postcode: klantFormulier.postcode,
+      plaats: klantFormulier.plaats,
+      kvk: klantFormulier.kvk,
+      btw: klantFormulier.btw,
+    };
+
+    const { data, error } = await supabase
+      .from("klanten")
+      .insert([nieuweKlant])
+      .select();
+
+    if (error) {
+      alert("Opslaan mislukt");
+      console.error(error);
       return;
     }
 
-    setKlanten([
-      { id: Date.now(), bedrijf: actiefBedrijf.naam, ...klantFormulier },
-      ...klanten,
-    ]);
+    setKlanten([data[0], ...klanten]);
 
     setKlantFormulier({
-      type: "Bedrijf",
       bedrijfsnaam: "",
       adres: "",
       postcode: "",
       plaats: "",
-      land: "Nederland",
       kvk: "",
       btw: "",
       voornaam: "",
@@ -94,10 +118,12 @@ export default function App() {
       email: "",
       telefoon: "",
     });
+
+    alert("Klant opgeslagen!");
   }
 
   function maakFactuurnummer() {
-    const aantal = facturenVoorBedrijf.length + actiefBedrijf.startNummer;
+    const aantal = facturen.length + actiefBedrijf.startNummer;
     return actiefBedrijf.factuurPrefix + String(aantal).padStart(4, "0");
   }
 
@@ -119,25 +145,24 @@ export default function App() {
     const btwBedrag = subtotaal * (btwPercentage / 100);
     const totaal = subtotaal + btwBedrag;
 
-    setFacturen([
-      {
-        id: Date.now(),
-        bedrijf: actiefBedrijf.naam,
-        nummer: maakFactuurnummer(),
-        datum: new Date().toLocaleDateString("nl-NL"),
-        klant,
-        klantNaam: klant.bedrijfsnaam || `${klant.voornaam} ${klant.achternaam}`,
-        omschrijving: factuurFormulier.omschrijving,
-        aantal,
-        prijs,
-        btwPercentage,
-        subtotaal,
-        btwBedrag,
-        totaal,
-        status: "Open",
-      },
-      ...facturen,
-    ]);
+    const nieuweFactuur = {
+      id: Date.now(),
+      bedrijf: actiefBedrijf.naam,
+      nummer: maakFactuurnummer(),
+      datum: new Date().toLocaleDateString("nl-NL"),
+      klant,
+      klantNaam: klant.bedrijfsnaam || klant.contactpersoon,
+      omschrijving: factuurFormulier.omschrijving,
+      aantal,
+      prijs,
+      btwPercentage,
+      subtotaal,
+      btwBedrag,
+      totaal,
+      status: "Open",
+    };
+
+    setFacturen([nieuweFactuur, ...facturen]);
 
     setFactuurFormulier({
       klantId: "",
@@ -166,7 +191,6 @@ export default function App() {
     doc.text(factuur.klantNaam, 20, 90);
     doc.text(factuur.klant.adres || "-", 20, 97);
     doc.text(`${factuur.klant.postcode || ""} ${factuur.klant.plaats || ""}`, 20, 104);
-    doc.text(factuur.klant.land || "Nederland", 20, 111);
 
     doc.text(`Nummer: ${factuur.nummer}`, 140, 90);
     doc.text(`Datum: ${factuur.datum}`, 140, 97);
@@ -203,12 +227,13 @@ export default function App() {
     doc.save(`Factuur ${factuur.nummer}.pdf`);
   }
 
-  const openstaand = facturenVoorBedrijf.filter((f) => f.status === "Open").reduce((s, f) => s + f.totaal, 0);
+  const openstaand = facturen.reduce((s, f) => s + f.totaal, 0);
 
   return (
     <div style={{ fontFamily: "Arial", background: "#f4eee5", minHeight: "100vh" }}>
       <header style={styles.header}>
         <h1 style={{ color: "#e79a3b", margin: 0 }}>Ten Beste Facturatie</h1>
+
         <select value={bedrijfIndex} onChange={(e) => setBedrijfIndex(Number(e.target.value))} style={styles.select}>
           {bedrijven.map((bedrijf, index) => (
             <option key={index} value={index}>{bedrijf.naam}</option>
@@ -226,8 +251,8 @@ export default function App() {
         </section>
 
         <section style={styles.stats}>
-          <Card title="Klanten" value={klantenVoorBedrijf.length} />
-          <Card title="Facturen" value={facturenVoorBedrijf.length} />
+          <Card title="Klanten" value={klanten.length} />
+          <Card title="Facturen" value={facturen.length} />
           <Card title="Openstaand" value={euro(openstaand)} />
           <Card title="Betaald" value="€ 0,00" />
         </section>
@@ -239,9 +264,10 @@ export default function App() {
             <Input name="adres" label="Adres" value={klantFormulier.adres} onChange={updateKlant} />
             <Input name="postcode" label="Postcode" value={klantFormulier.postcode} onChange={updateKlant} />
             <Input name="plaats" label="Plaats" value={klantFormulier.plaats} onChange={updateKlant} />
-            <Input name="land" label="Land" value={klantFormulier.land} onChange={updateKlant} />
             <Input name="kvk" label="KvK-nummer" value={klantFormulier.kvk} onChange={updateKlant} />
             <Input name="btw" label="BTW-nummer" value={klantFormulier.btw} onChange={updateKlant} />
+            <Input name="voornaam" label="Voornaam contactpersoon" value={klantFormulier.voornaam} onChange={updateKlant} />
+            <Input name="achternaam" label="Achternaam contactpersoon" value={klantFormulier.achternaam} onChange={updateKlant} />
             <Input name="email" label="E-mailadres" value={klantFormulier.email} onChange={updateKlant} />
             <Input name="telefoon" label="Telefoonnummer" value={klantFormulier.telefoon} onChange={updateKlant} />
             <Button>Klant opslaan</Button>
@@ -249,12 +275,13 @@ export default function App() {
 
           <form onSubmit={factuurOpslaan} style={styles.panel}>
             <h2>Nieuwe factuur</h2>
+
             <label style={styles.label}>Klant</label>
             <select name="klantId" value={factuurFormulier.klantId} onChange={updateFactuur} style={styles.input}>
               <option value="">Kies klant</option>
-              {klantenVoorBedrijf.map((klant) => (
+              {klanten.map((klant) => (
                 <option key={klant.id} value={klant.id}>
-                  {klant.bedrijfsnaam || `${klant.voornaam} ${klant.achternaam}`}
+                  {klant.bedrijfsnaam || klant.contactpersoon}
                 </option>
               ))}
             </select>
@@ -275,22 +302,30 @@ export default function App() {
         </section>
 
         <section style={styles.panel}>
+          <h2>Klantenlijst</h2>
+          {klanten.map((klant) => (
+            <div key={klant.id} style={styles.item}>
+              <strong>{klant.bedrijfsnaam || klant.contactpersoon}</strong>
+              <p>{klant.adres}, {klant.postcode} {klant.plaats}</p>
+              <p>{klant.email}</p>
+              <p>{klant.telefoon}</p>
+            </div>
+          ))}
+        </section>
+
+        <section style={styles.panel}>
           <h2>Facturenlijst</h2>
-          {facturenVoorBedrijf.length === 0 ? (
-            <p>Nog geen facturen gemaakt.</p>
-          ) : (
-            facturenVoorBedrijf.map((factuur) => (
-              <div key={factuur.id} style={styles.item}>
-                <strong>{factuur.nummer}</strong>
-                <p>{factuur.klantNaam}</p>
-                <p>{factuur.omschrijving}</p>
-                <h3>Totaal: {euro(factuur.totaal)}</h3>
-                <button onClick={() => downloadPdf(factuur)} style={styles.button}>
-                  Download PDF
-                </button>
-              </div>
-            ))
-          )}
+          {facturen.map((factuur) => (
+            <div key={factuur.id} style={styles.item}>
+              <strong>{factuur.nummer}</strong>
+              <p>{factuur.klantNaam}</p>
+              <p>{factuur.omschrijving}</p>
+              <h3>Totaal: {euro(factuur.totaal)}</h3>
+              <button onClick={() => downloadPdf(factuur)} style={styles.button}>
+                Download PDF
+              </button>
+            </div>
+          ))}
         </section>
       </main>
     </div>
@@ -320,7 +355,10 @@ function Button({ children }) {
 }
 
 function euro(value) {
-  return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(value || 0);
+  return new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+  }).format(value || 0);
 }
 
 const styles = {
