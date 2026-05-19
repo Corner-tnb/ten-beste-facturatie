@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = "https://dcxifkkjfyeudwensnb.supabase.co";
 
 const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+  "PLAK_HIER_VOLLEDIGE_ANON_KEY";
 
 export const supabase = createClient(
   supabaseUrl,
