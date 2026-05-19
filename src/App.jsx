@@ -81,8 +81,9 @@ export default function App() {
   async function klantOpslaan(e) {
     e.preventDefault();
 
-    const nieuweKlant = {
-      bedrijfsnaam: klantFormulier.bedrijfsnaam,
+const nieuweKlant = {
+  bedrijf: actiefBedrijf.naam,
+  bedrijfsnaam: klantFormulier.bedrijfsnaam,
       contactpersoon: `${klantFormulier.voornaam} ${klantFormulier.achternaam}`,
       email: klantFormulier.email,
       telefoon: klantFormulier.telefoon,
