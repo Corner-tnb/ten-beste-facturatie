@@ -19,6 +19,9 @@ export default function App() {
   const [factuurregels, setFactuurregels] = useState([]);
   const [bewerkFactuur, setBewerkFactuur] = useState(null);
 
+  const [zoekterm, setZoekterm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Alles");
+
   const [klantForm, setKlantForm] = useState({ bedrijfsnaam: "", adres: "", postcode: "", plaats: "", kvk: "", btw: "", voornaam: "", achternaam: "", email: "", telefoon: "" });
   const [productForm, setProductForm] = useState({ omschrijving: "", categorie: "", prijs: "", btw_percentage: 21 });
   const [factuurForm, setFactuurForm] = useState({ klantId: "", regels: [{ omschrijving: "", aantal: 1, prijs: "", btwPercentage: 21 }], notitie: "" });
@@ -59,14 +62,24 @@ export default function App() {
 
   const klantenBedrijf = klanten.filter(k => k.bedrijf === bedrijf.naam);
   const productenBedrijf = producten.filter(p => p.bedrijf === bedrijf.naam);
-  const facturenBedrijf = facturen.filter(f => f.bedrijf === bedrijf.naam);
+
+  const facturenBedrijf = facturen
+    .filter(f => f.bedrijf === bedrijf.naam)
+    .filter(f => {
+      const tekst = `${f.factuurnummer} ${f.klant_naam} ${f.status}`.toLowerCase();
+      const matchZoekterm = tekst.includes(zoekterm.toLowerCase());
+      const matchStatus = statusFilter === "Alles" || f.status === statusFilter;
+      return matchZoekterm && matchStatus;
+    });
+
+  const alleFacturenBedrijf = facturen.filter(f => f.bedrijf === bedrijf.naam);
 
   function euro(v) {
     return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(Number(v || 0));
   }
 
   function volgendeFactuurnummer() {
-    return `2026.${String(facturenBedrijf.length + bedrijf.startNummer).padStart(4, "0")}`;
+    return `2026.${String(alleFacturenBedrijf.length + bedrijf.startNummer).padStart(4, "0")}`;
   }
 
   function berekenRegel(r) {
@@ -107,15 +120,24 @@ export default function App() {
 
     const { data, error } = await supabase.from("klanten").insert([nieuweKlant]).select();
     if (error) return alert(error.message);
+
     setKlanten([data[0], ...klanten]);
     setKlantForm({ bedrijfsnaam: "", adres: "", postcode: "", plaats: "", kvk: "", btw: "", voornaam: "", achternaam: "", email: "", telefoon: "" });
   }
 
   async function productOpslaan(e) {
     e.preventDefault();
-    const nieuwProduct = { bedrijf: bedrijf.naam, omschrijving: productForm.omschrijving, categorie: productForm.categorie, prijs: Number(productForm.prijs), btw_percentage: Number(productForm.btw_percentage) };
+    const nieuwProduct = {
+      bedrijf: bedrijf.naam,
+      omschrijving: productForm.omschrijving,
+      categorie: productForm.categorie,
+      prijs: Number(productForm.prijs),
+      btw_percentage: Number(productForm.btw_percentage),
+    };
+
     const { data, error } = await supabase.from("producten").insert([nieuwProduct]).select();
     if (error) return alert(error.message);
+
     setProducten([data[0], ...producten]);
     setProductForm({ omschrijving: "", categorie: "", prijs: "", btw_percentage: 21 });
   }
@@ -126,7 +148,14 @@ export default function App() {
 
     const source = isEdit ? bewerkFactuur.regels : factuurForm.regels;
     const regels = [...source];
-    regels[index] = { ...regels[index], omschrijving: product.omschrijving, aantal: regels[index].aantal || 1, prijs: product.prijs, btwPercentage: product.btw_percentage };
+
+    regels[index] = {
+      ...regels[index],
+      omschrijving: product.omschrijving,
+      aantal: regels[index].aantal || 1,
+      prijs: product.prijs,
+      btwPercentage: product.btw_percentage,
+    };
 
     if (isEdit) setBewerkFactuur({ ...bewerkFactuur, regels });
     else setFactuurForm({ ...factuurForm, regels });
@@ -143,21 +172,36 @@ export default function App() {
 
   function voegRegelToe(isEdit = false) {
     const nieuweRegel = { omschrijving: "", aantal: 1, prijs: "", btwPercentage: 21 };
-    if (isEdit) setBewerkFactuur({ ...bewerkFactuur, regels: [...bewerkFactuur.regels, nieuweRegel] });
-    else setFactuurForm({ ...factuurForm, regels: [...factuurForm.regels, nieuweRegel] });
+
+    if (isEdit) {
+      setBewerkFactuur({ ...bewerkFactuur, regels: [...bewerkFactuur.regels, nieuweRegel] });
+    } else {
+      setFactuurForm({ ...factuurForm, regels: [...factuurForm.regels, nieuweRegel] });
+    }
   }
 
   function verwijderRegel(index, isEdit = false) {
-    if (isEdit) setBewerkFactuur({ ...bewerkFactuur, regels: bewerkFactuur.regels.filter((_, i) => i !== index) });
-    else setFactuurForm({ ...factuurForm, regels: factuurForm.regels.filter((_, i) => i !== index) });
+    if (isEdit) {
+      setBewerkFactuur({
+        ...bewerkFactuur,
+        regels: bewerkFactuur.regels.filter((_, i) => i !== index),
+      });
+    } else {
+      setFactuurForm({
+        ...factuurForm,
+        regels: factuurForm.regels.filter((_, i) => i !== index),
+      });
+    }
   }
 
   async function factuurOpslaan(e) {
     e.preventDefault();
+
     const klant = klanten.find(k => String(k.id) === String(factuurForm.klantId));
     if (!klant) return alert("Kies eerst een klant.");
 
     const totalen = berekenFactuur();
+
     const factuur = {
       bedrijf: bedrijf.naam,
       klant_id: klant.id,
@@ -178,7 +222,16 @@ export default function App() {
 
     const regels = factuurForm.regels.map(r => {
       const b = berekenRegel(r);
-      return { factuur_id: data[0].id, omschrijving: r.omschrijving, aantal: Number(r.aantal), prijs: Number(r.prijs), btw_percentage: Number(r.btwPercentage), subtotaal: b.subtotaal, btw_bedrag: b.btw, totaal: b.totaal };
+      return {
+        factuur_id: data[0].id,
+        omschrijving: r.omschrijving,
+        aantal: Number(r.aantal),
+        prijs: Number(r.prijs),
+        btw_percentage: Number(r.btwPercentage),
+        subtotaal: b.subtotaal,
+        btw_bedrag: b.btw,
+        totaal: b.totaal,
+      };
     });
 
     const regelsResult = await supabase.from("factuurregels").insert(regels).select();
@@ -235,7 +288,16 @@ export default function App() {
 
     const nieuweRegels = bewerkFactuur.regels.map(r => {
       const b = berekenRegel(r);
-      return { factuur_id: bewerkFactuur.id, omschrijving: r.omschrijving, aantal: Number(r.aantal), prijs: Number(r.prijs), btw_percentage: Number(r.btwPercentage), subtotaal: b.subtotaal, btw_bedrag: b.btw, totaal: b.totaal };
+      return {
+        factuur_id: bewerkFactuur.id,
+        omschrijving: r.omschrijving,
+        aantal: Number(r.aantal),
+        prijs: Number(r.prijs),
+        btw_percentage: Number(r.btwPercentage),
+        subtotaal: b.subtotaal,
+        btw_bedrag: b.btw,
+        totaal: b.totaal,
+      };
     });
 
     const regelsResult = await supabase.from("factuurregels").insert(nieuweRegels).select();
@@ -248,14 +310,24 @@ export default function App() {
   }
 
   async function wijzigStatus(factuur, status) {
-    const { data, error } = await supabase.from("facturen").update({ status, betaald_op: status === "Betaald" ? new Date().toLocaleDateString("nl-NL") : null }).eq("id", factuur.id).select();
+    const { data, error } = await supabase
+      .from("facturen")
+      .update({
+        status,
+        betaald_op: status === "Betaald" ? new Date().toLocaleDateString("nl-NL") : null,
+      })
+      .eq("id", factuur.id)
+      .select();
+
     if (error) return alert(error.message);
     setFacturen(facturen.map(f => f.id === factuur.id ? data[0] : f));
   }
 
   async function verwijderFactuur(id) {
     if (!confirm("Factuur verwijderen?")) return;
+
     await supabase.from("facturen").delete().eq("id", id);
+
     setFacturen(facturen.filter(f => f.id !== id));
     setFactuurregels(factuurregels.filter(r => r.factuur_id !== id));
   }
@@ -267,6 +339,7 @@ export default function App() {
 
     doc.setFontSize(20);
     doc.text("FACTUUR", 160, 20);
+
     doc.setFontSize(10);
     doc.text(bedrijf.naam, 20, 25);
     doc.text(bedrijf.adres || "-", 20, 32);
@@ -305,11 +378,17 @@ export default function App() {
     doc.text(`BTW: ${euro(factuur.btw_bedrag)}`, 125, y + 8);
     doc.setFontSize(14);
     doc.text(`Totaal: ${euro(factuur.totaal)}`, 125, y + 20);
+
     doc.save(`Factuur ${factuur.factuurnummer}.pdf`);
   }
 
-  const openstaand = facturenBedrijf.filter(f => f.status === "Open").reduce((s, f) => s + Number(f.totaal || 0), 0);
-  const betaald = facturenBedrijf.filter(f => f.status === "Betaald").reduce((s, f) => s + Number(f.totaal || 0), 0);
+  const openstaand = alleFacturenBedrijf
+    .filter(f => f.status === "Open")
+    .reduce((s, f) => s + Number(f.totaal || 0), 0);
+
+  const betaald = alleFacturenBedrijf
+    .filter(f => f.status === "Betaald")
+    .reduce((s, f) => s + Number(f.totaal || 0), 0);
 
   if (!session) {
     return (
@@ -351,7 +430,7 @@ export default function App() {
             <section style={s.stats}>
               <Card title="Openstaand" value={euro(openstaand)} />
               <Card title="Betaald" value={euro(betaald)} />
-              <Card title="Facturen" value={facturenBedrijf.length} />
+              <Card title="Facturen" value={alleFacturenBedrijf.length} />
               <Card title="Klanten" value={klantenBedrijf.length} />
             </section>
           </>
@@ -366,7 +445,12 @@ export default function App() {
               ))}
               <button style={s.greenButton}>Klant opslaan</button>
             </form>
-            {klantenBedrijf.map(k => <div key={k.id} style={s.row}><strong>{k.bedrijfsnaam || k.contactpersoon}</strong><span>{k.email}</span></div>)}
+            {klantenBedrijf.map(k => (
+              <div key={k.id} style={s.row}>
+                <strong>{k.bedrijfsnaam || k.contactpersoon}</strong>
+                <span>{k.email}</span>
+              </div>
+            ))}
           </section>
         )}
 
@@ -378,11 +462,18 @@ export default function App() {
               <input placeholder="Categorie" value={productForm.categorie} onChange={e => setProductForm({ ...productForm, categorie: e.target.value })} style={s.input} />
               <input placeholder="Prijs" value={productForm.prijs} onChange={e => setProductForm({ ...productForm, prijs: e.target.value })} style={s.input} />
               <select value={productForm.btw_percentage} onChange={e => setProductForm({ ...productForm, btw_percentage: e.target.value })} style={s.input}>
-                <option value="0">0%</option><option value="9">9%</option><option value="21">21%</option>
+                <option value="0">0%</option>
+                <option value="9">9%</option>
+                <option value="21">21%</option>
               </select>
               <button style={s.greenButton}>Product opslaan</button>
             </form>
-            {productenBedrijf.map(p => <div key={p.id} style={s.row}><strong>{p.omschrijving}</strong><span>{euro(p.prijs)}</span></div>)}
+            {productenBedrijf.map(p => (
+              <div key={p.id} style={s.row}>
+                <strong>{p.omschrijving}</strong>
+                <span>{euro(p.prijs)}</span>
+              </div>
+            ))}
           </section>
         )}
 
@@ -396,7 +487,9 @@ export default function App() {
                   {klantenBedrijf.map(k => <option key={k.id} value={k.id}>{k.bedrijfsnaam || k.contactpersoon}</option>)}
                 </select>
 
-                {factuurForm.regels.map((r, i) => <ProductRegel key={i} r={r} i={i} producten={productenBedrijf} kiesProduct={kiesProduct} updateRegel={updateRegel} verwijderRegel={verwijderRegel} euro={euro} berekenRegel={berekenRegel} />)}
+                {factuurForm.regels.map((r, i) => (
+                  <ProductRegel key={i} r={r} i={i} producten={productenBedrijf} kiesProduct={kiesProduct} updateRegel={updateRegel} verwijderRegel={verwijderRegel} euro={euro} berekenRegel={berekenRegel} />
+                ))}
 
                 <button type="button" onClick={() => voegRegelToe(false)} style={s.greenButton}>+ Product</button>
                 <div style={s.totalBox}><h2>Totaal: {euro(berekenFactuur().totaal)}</h2></div>
@@ -406,6 +499,22 @@ export default function App() {
 
             <section style={s.panel}>
               <h1>Facturen</h1>
+
+              <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+                <input
+                  placeholder="Zoek op factuurnummer of klant"
+                  value={zoekterm}
+                  onChange={e => setZoekterm(e.target.value)}
+                  style={s.input}
+                />
+
+                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={s.select}>
+                  <option value="Alles">Alles</option>
+                  <option value="Open">Openstaand</option>
+                  <option value="Betaald">Betaald</option>
+                </select>
+              </div>
+
               {facturenBedrijf.map(f => (
                 <div key={f.id} style={s.invoiceRow}>
                   <span>{f.factuurnummer}</span>
@@ -434,12 +543,12 @@ export default function App() {
                 {klantenBedrijf.map(k => <option key={k.id} value={k.id}>{k.bedrijfsnaam || k.contactpersoon}</option>)}
               </select>
 
-              {bewerkFactuur.regels.map((r, i) => <ProductRegel key={i} r={r} i={i} producten={productenBedrijf} kiesProduct={(index, id) => kiesProduct(index, id, true)} updateRegel={(index, veld, waarde) => updateRegel(index, veld, waarde, true)} verwijderRegel={(index) => verwijderRegel(index, true)} euro={euro} berekenRegel={berekenRegel} />)}
+              {bewerkFactuur.regels.map((r, i) => (
+                <ProductRegel key={i} r={r} i={i} producten={productenBedrijf} kiesProduct={(index, id) => kiesProduct(index, id, true)} updateRegel={(index, veld, waarde) => updateRegel(index, veld, waarde, true)} verwijderRegel={(index) => verwijderRegel(index, true)} euro={euro} berekenRegel={berekenRegel} />
+              ))}
 
               <button type="button" onClick={() => voegRegelToe(true)} style={s.greenButton}>+ Productregel</button>
-
               <textarea placeholder="Notitie" value={bewerkFactuur.notitie} onChange={e => setBewerkFactuur({ ...bewerkFactuur, notitie: e.target.value })} style={{ ...s.input, minHeight: 90 }} />
-
               <div style={s.totalBox}><h2>Totaal: {euro(berekenRegels(bewerkFactuur.regels).totaal)}</h2></div>
 
               <button style={s.greenButton}>Wijzigingen opslaan</button>
@@ -464,7 +573,9 @@ function ProductRegel({ r, i, producten, kiesProduct, updateRegel, verwijderRege
       <input placeholder="Aantal" value={r.aantal || ""} onChange={e => updateRegel(i, "aantal", e.target.value)} style={s.smallInput} />
       <input placeholder="Prijs" value={r.prijs || ""} onChange={e => updateRegel(i, "prijs", e.target.value)} style={s.smallInput} />
       <select value={r.btwPercentage || 21} onChange={e => updateRegel(i, "btwPercentage", e.target.value)} style={s.smallInput}>
-        <option value="0">0%</option><option value="9">9%</option><option value="21">21%</option>
+        <option value="0">0%</option>
+        <option value="9">9%</option>
+        <option value="21">21%</option>
       </select>
       <strong>{euro(b.totaal)}</strong>
       <button type="button" onClick={() => verwijderRegel(i)} style={s.redButton}>×</button>
