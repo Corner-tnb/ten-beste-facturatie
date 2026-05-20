@@ -419,14 +419,30 @@ async function downloadPdf(factuur) {
     doc.setTextColor(79, 107, 237);
     doc.text(`Totaal: ${euro(factuur.totaal)}`, 135, y + 22);
 
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(120);
-    doc.text(
-      "Bedankt voor uw vertrouwen in Facturatie Ten Beste.",
-      15,
-      285
-    );
+// Betaaltekst + footer
+doc.setFontSize(10);
+doc.setTextColor(40);
+
+doc.text(
+  "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum over te maken onder vermelding van het factuurnummer.",
+  105,
+  255,
+  { align: "center", maxWidth: 170 }
+);
+
+doc.text(
+  `${bedrijf.naam} * IBAN: ${bedrijf.iban}`,
+  105,
+  272,
+  { align: "center" }
+);
+
+doc.text(
+  `BTW nummer: ${bedrijf.btw} * KvK nummer: ${bedrijf.kvk}`,
+  105,
+  280,
+  { align: "center" }
+);
 
     doc.save(`Factuur-${factuur.factuurnummer}.pdf`);
   };
