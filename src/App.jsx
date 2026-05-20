@@ -12,7 +12,6 @@ export default function App() {
       kvk: "98498762",
       btw: "NL868520895B01",
       iban: "NL85ABNA0120545004",
-      factuurPrefix: "2026.",
       startNummer: 14,
     },
     {
@@ -23,16 +22,17 @@ export default function App() {
       kvk: "98613375",
       btw: "NL868569021B01",
       iban: "NL03ABNA0149841159",
-      factuurPrefix: "2026.",
       startNummer: 4,
     },
   ];
 
+  const [pagina, setPagina] = useState("dashboard");
   const [bedrijfIndex, setBedrijfIndex] = useState(0);
   const [klanten, setKlanten] = useState([]);
   const [facturen, setFacturen] = useState([]);
+  const [factuurregels, setFactuurregels] = useState([]);
 
-  const [klantFormulier, setKlantFormulier] = useState({
+  const [klantForm, setKlantForm] = useState({
     bedrijfsnaam: "",
     adres: "",
     postcode: "",
@@ -45,65 +45,82 @@ export default function App() {
     telefoon: "",
   });
 
-  const [factuurFormulier, setFactuurFormulier] = useState({
+  const [factuurForm, setFactuurForm] = useState({
     klantId: "",
-    omschrijving: "",
-    aantal: 1,
-    prijs: "",
-    btwPercentage: 9,
+    regels: [
+      { omschrijving: "", aantal: 1, prijs: "", btwPercentage: 21 },
+    ],
   });
 
-  const actiefBedrijf = bedrijven[bedrijfIndex];
+  const bedrijf = bedrijven[bedrijfIndex];
 
   useEffect(() => {
     laadData();
   }, []);
 
   async function laadData() {
-    const klantenResult = await supabase.from("klanten").select("*").order("id", { ascending: false });
-    const facturenResult = await supabase.from("facturen").select("*").order("id", { ascending: false });
+    const klantenData = await supabase.from("klanten").select("*").order("id", { ascending: false });
+    const facturenData = await supabase.from("facturen").select("*").order("id", { ascending: false });
+    const regelsData = await supabase.from("factuurregels").select("*").order("id", { ascending: true });
 
-    if (!klantenResult.error) setKlanten(klantenResult.data || []);
-    if (!facturenResult.error) setFacturen(facturenResult.data || []);
+    if (!klantenData.error) setKlanten(klantenData.data || []);
+    if (!facturenData.error) setFacturen(facturenData.data || []);
+    if (!regelsData.error) setFactuurregels(regelsData.data || []);
   }
 
-  const klantenVoorBedrijf = klanten.filter((k) => k.bedrijf === actiefBedrijf.naam);
-  const facturenVoorBedrijf = facturen.filter((f) => f.bedrijf === actiefBedrijf.naam);
+  const klantenBedrijf = klanten.filter(k => k.bedrijf === bedrijf.naam);
+  const facturenBedrijf = facturen.filter(f => f.bedrijf === bedrijf.naam);
 
-  function updateKlant(e) {
-    setKlantFormulier({ ...klantFormulier, [e.target.name]: e.target.value });
+  function euro(v) {
+    return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(Number(v || 0));
   }
 
-  function updateFactuur(e) {
-    setFactuurFormulier({ ...factuurFormulier, [e.target.name]: e.target.value });
+  function volgendeFactuurnummer() {
+    return `2026.${String(facturenBedrijf.length + bedrijf.startNummer).padStart(4, "0")}`;
+  }
+
+  function berekenRegel(r) {
+    const subtotaal = Number(r.aantal || 0) * Number(r.prijs || 0);
+    const btw = subtotaal * (Number(r.btwPercentage || 0) / 100);
+    return { subtotaal, btw, totaal: subtotaal + btw };
+  }
+
+  function berekenFactuur() {
+    return factuurForm.regels.reduce(
+      (acc, r) => {
+        const b = berekenRegel(r);
+        acc.subtotaal += b.subtotaal;
+        acc.btw += b.btw;
+        acc.totaal += b.totaal;
+        return acc;
+      },
+      { subtotaal: 0, btw: 0, totaal: 0 }
+    );
   }
 
   async function klantOpslaan(e) {
     e.preventDefault();
 
     const nieuweKlant = {
-      bedrijf: actiefBedrijf.naam,
-      bedrijfsnaam: klantFormulier.bedrijfsnaam,
-      contactpersoon: `${klantFormulier.voornaam} ${klantFormulier.achternaam}`,
-      email: klantFormulier.email,
-      telefoon: klantFormulier.telefoon,
-      adres: klantFormulier.adres,
-      postcode: klantFormulier.postcode,
-      plaats: klantFormulier.plaats,
-      kvk: klantFormulier.kvk,
-      btw: klantFormulier.btw,
+      bedrijf: bedrijf.naam,
+      bedrijfsnaam: klantForm.bedrijfsnaam,
+      contactpersoon: `${klantForm.voornaam} ${klantForm.achternaam}`.trim(),
+      email: klantForm.email,
+      telefoon: klantForm.telefoon,
+      adres: klantForm.adres,
+      postcode: klantForm.postcode,
+      plaats: klantForm.plaats,
+      kvk: klantForm.kvk,
+      btw: klantForm.btw,
       land: "Nederland",
     };
 
     const { data, error } = await supabase.from("klanten").insert([nieuweKlant]).select();
 
-    if (error) {
-      alert("Opslaan mislukt: " + error.message);
-      return;
-    }
+    if (error) return alert("Klant opslaan mislukt: " + error.message);
 
     setKlanten([data[0], ...klanten]);
-    setKlantFormulier({
+    setKlantForm({
       bedrijfsnaam: "",
       adres: "",
       postcode: "",
@@ -117,298 +134,304 @@ export default function App() {
     });
   }
 
-  function maakFactuurnummer() {
-    const aantal = facturenVoorBedrijf.length + actiefBedrijf.startNummer;
-    return actiefBedrijf.factuurPrefix + String(aantal).padStart(4, "0");
+  function updateRegel(index, veld, waarde) {
+    const regels = [...factuurForm.regels];
+    regels[index][veld] = waarde;
+    setFactuurForm({ ...factuurForm, regels });
+  }
+
+  function voegRegelToe() {
+    setFactuurForm({
+      ...factuurForm,
+      regels: [...factuurForm.regels, { omschrijving: "", aantal: 1, prijs: "", btwPercentage: 21 }],
+    });
+  }
+
+  function verwijderRegel(index) {
+    setFactuurForm({
+      ...factuurForm,
+      regels: factuurForm.regels.filter((_, i) => i !== index),
+    });
   }
 
   async function factuurOpslaan(e) {
     e.preventDefault();
 
-    const klant = klanten.find((k) => String(k.id) === String(factuurFormulier.klantId));
+    const klant = klanten.find(k => String(k.id) === String(factuurForm.klantId));
+    if (!klant) return alert("Kies eerst een klant.");
 
-    if (!klant) {
-      alert("Kies eerst een klant.");
-      return;
-    }
+    const totalen = berekenFactuur();
 
-    const aantal = Number(factuurFormulier.aantal);
-    const prijs = Number(factuurFormulier.prijs);
-    const btwPercentage = Number(factuurFormulier.btwPercentage);
-    const subtotaal = aantal * prijs;
-    const btwBedrag = subtotaal * (btwPercentage / 100);
-    const totaal = subtotaal + btwBedrag;
-
-    const nieuweFactuur = {
-      bedrijf: actiefBedrijf.naam,
+    const factuur = {
+      bedrijf: bedrijf.naam,
       klant_id: klant.id,
       klant_naam: klant.bedrijfsnaam || klant.contactpersoon,
-      factuurnummer: maakFactuurnummer(),
+      factuurnummer: volgendeFactuurnummer(),
       datum: new Date().toLocaleDateString("nl-NL"),
-      omschrijving: factuurFormulier.omschrijving,
-      aantal,
-      prijs,
-      btw_percentage: btwPercentage,
-      subtotaal,
-      btw_bedrag: btwBedrag,
-      totaal,
+      omschrijving: "Meerdere producten",
+      aantal: 1,
+      prijs: totalen.subtotaal,
+      btw_percentage: 0,
+      subtotaal: totalen.subtotaal,
+      btw_bedrag: totalen.btw,
+      totaal: totalen.totaal,
       status: "Open",
     };
 
-    const { data, error } = await supabase.from("facturen").insert([nieuweFactuur]).select();
+    const { data, error } = await supabase.from("facturen").insert([factuur]).select();
+    if (error) return alert("Factuur opslaan mislukt: " + error.message);
 
-    if (error) {
-      alert("Factuur opslaan mislukt: " + error.message);
-      return;
-    }
+    const factuurId = data[0].id;
+
+    const regels = factuurForm.regels.map(r => {
+      const b = berekenRegel(r);
+      return {
+        factuur_id: factuurId,
+        omschrijving: r.omschrijving,
+        aantal: Number(r.aantal),
+        prijs: Number(r.prijs),
+        btw_percentage: Number(r.btwPercentage),
+        subtotaal: b.subtotaal,
+        btw_bedrag: b.btw,
+        totaal: b.totaal,
+      };
+    });
+
+    const regelsResult = await supabase.from("factuurregels").insert(regels).select();
+    if (regelsResult.error) return alert("Factuurregels opslaan mislukt: " + regelsResult.error.message);
 
     setFacturen([data[0], ...facturen]);
-    setFactuurFormulier({
+    setFactuurregels([...factuurregels, ...regelsResult.data]);
+
+    setFactuurForm({
       klantId: "",
-      omschrijving: "",
-      aantal: 1,
-      prijs: "",
-      btwPercentage: 9,
+      regels: [{ omschrijving: "", aantal: 1, prijs: "", btwPercentage: 21 }],
     });
   }
 
   async function verwijderFactuur(id) {
-    if (!confirm("Weet je zeker dat je deze factuur wilt verwijderen?")) return;
+    if (!confirm("Factuur verwijderen?")) return;
 
     const { error } = await supabase.from("facturen").delete().eq("id", id);
+    if (error) return alert("Verwijderen mislukt: " + error.message);
 
-    if (error) {
-      alert("Verwijderen mislukt: " + error.message);
-      return;
-    }
-
-    setFacturen(facturen.filter((f) => f.id !== id));
+    setFacturen(facturen.filter(f => f.id !== id));
+    setFactuurregels(factuurregels.filter(r => r.factuur_id !== id));
   }
 
   function downloadPdf(factuur) {
-    const klant = klanten.find((k) => k.id === factuur.klant_id) || {};
-
+    const klant = klanten.find(k => k.id === factuur.klant_id) || {};
+    const regels = factuurregels.filter(r => r.factuur_id === factuur.id);
     const doc = new jsPDF();
 
     doc.setFontSize(20);
     doc.text("FACTUUR", 160, 20);
 
-    doc.setFontSize(11);
-    doc.text(actiefBedrijf.naam, 20, 25);
-    doc.text(actiefBedrijf.adres || "-", 20, 32);
-    doc.text(actiefBedrijf.plaats || "-", 20, 39);
-    doc.text(actiefBedrijf.land, 20, 46);
-    doc.text(`KvK-nr: ${actiefBedrijf.kvk}`, 20, 56);
-    doc.text(`BTW-nr: ${actiefBedrijf.btw}`, 20, 63);
-    doc.text(`Bank: ${actiefBedrijf.iban}`, 20, 70);
+    doc.setFontSize(10);
+    doc.text(bedrijf.naam, 20, 25);
+    doc.text(bedrijf.adres || "-", 20, 32);
+    doc.text(bedrijf.plaats || "-", 20, 39);
+    doc.text(`KvK: ${bedrijf.kvk}`, 20, 50);
+    doc.text(`BTW: ${bedrijf.btw}`, 20, 57);
+    doc.text(`IBAN: ${bedrijf.iban}`, 20, 64);
 
-    doc.text(factuur.klant_naam || "-", 20, 90);
-    doc.text(klant.adres || "-", 20, 97);
-    doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 20, 104);
+    doc.text(factuur.klant_naam || "-", 20, 88);
+    doc.text(klant.adres || "-", 20, 95);
+    doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 20, 102);
 
-    doc.text(`Nummer: ${factuur.factuurnummer}`, 140, 90);
-    doc.text(`Datum: ${factuur.datum}`, 140, 97);
+    doc.text(`Nummer: ${factuur.factuurnummer}`, 140, 88);
+    doc.text(`Datum: ${factuur.datum}`, 140, 95);
 
-    doc.line(20, 130, 190, 130);
-    doc.text("Producten", 20, 140);
-    doc.text("Aantal", 100, 140);
-    doc.text("Prijs", 125, 140);
-    doc.text("Totaal", 160, 140);
-    doc.line(20, 145, 190, 145);
+    doc.line(20, 125, 190, 125);
+    doc.text("Product", 20, 135);
+    doc.text("Aantal", 95, 135);
+    doc.text("Prijs", 120, 135);
+    doc.text("BTW", 145, 135);
+    doc.text("Totaal", 165, 135);
+    doc.line(20, 140, 190, 140);
 
-    doc.text(factuur.omschrijving || "-", 20, 155);
-    doc.text(String(factuur.aantal), 100, 155);
-    doc.text(euro(factuur.prijs), 125, 155);
-    doc.text(euro(factuur.subtotaal), 160, 155);
+    let y = 150;
+    regels.forEach(r => {
+      doc.text(String(r.omschrijving || "-"), 20, y);
+      doc.text(String(r.aantal), 95, y);
+      doc.text(euro(r.prijs), 120, y);
+      doc.text(`${r.btw_percentage}%`, 145, y);
+      doc.text(euro(r.totaal), 165, y);
+      y += 10;
+    });
 
-    doc.text(`Subtotaal: ${euro(factuur.subtotaal)}`, 125, 180);
-    doc.text(`BTW ${factuur.btw_percentage}%: ${euro(factuur.btw_bedrag)}`, 125, 188);
-
+    y += 15;
+    doc.text(`Subtotaal: ${euro(factuur.subtotaal)}`, 125, y);
+    doc.text(`BTW: ${euro(factuur.btw_bedrag)}`, 125, y + 8);
     doc.setFontSize(14);
-    doc.text(`Totaal: ${euro(factuur.totaal)}`, 125, 200);
+    doc.text(`Totaal: ${euro(factuur.totaal)}`, 125, y + 20);
 
     doc.setFontSize(10);
-    doc.text(
-      "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum over te maken onder vermelding van het factuurnummer.",
-      20,
-      240,
-      { maxWidth: 170 }
-    );
-
-    doc.text(`${actiefBedrijf.naam} * IBAN: ${actiefBedrijf.iban}`, 20, 275);
-    doc.text(`BTW nummer: ${actiefBedrijf.btw} * KvK nummer: ${actiefBedrijf.kvk}`, 20, 282);
+    doc.text("Gelieve binnen 7 dagen te betalen onder vermelding van het factuurnummer.", 20, 260);
+    doc.text(`${bedrijf.naam} * IBAN: ${bedrijf.iban}`, 20, 275);
 
     doc.save(`Factuur ${factuur.factuurnummer}.pdf`);
   }
 
-  const openstaand = facturenVoorBedrijf.reduce((s, f) => s + Number(f.totaal || 0), 0);
+  const openstaand = facturenBedrijf.filter(f => f.status === "Open").reduce((s, f) => s + Number(f.totaal || 0), 0);
 
   return (
-    <div style={{ fontFamily: "Arial", background: "#f4eee5", minHeight: "100vh" }}>
-      <header style={styles.header}>
-        <h1 style={{ color: "#e79a3b", margin: 0 }}>Ten Beste Facturatie</h1>
+    <div style={s.app}>
+      <aside style={s.sidebar}>
+        <h2 style={s.logo}>Factuur Simpel</h2>
+        <Menu label="Dashboard" active={pagina === "dashboard"} onClick={() => setPagina("dashboard")} />
+        <Menu label="Facturen" active={pagina === "facturen"} onClick={() => setPagina("facturen")} />
+        <Menu label="Klanten" active={pagina === "klanten"} onClick={() => setPagina("klanten")} />
+        <Menu label="Producten" active={pagina === "producten"} onClick={() => setPagina("producten")} />
+        <Menu label="Rapporten" active={pagina === "rapporten"} onClick={() => setPagina("rapporten")} />
+        <Menu label="Instellingen" active={pagina === "instellingen"} onClick={() => setPagina("instellingen")} />
+      </aside>
 
-        <select value={bedrijfIndex} onChange={(e) => setBedrijfIndex(Number(e.target.value))} style={styles.select}>
-          {bedrijven.map((bedrijf, index) => (
-            <option key={index} value={index}>{bedrijf.naam}</option>
-          ))}
-        </select>
-      </header>
+      <main style={s.main}>
+        <header style={s.topbar}>
+          <select value={bedrijfIndex} onChange={e => setBedrijfIndex(Number(e.target.value))} style={s.select}>
+            {bedrijven.map((b, i) => <option key={i} value={i}>{b.naam}</option>)}
+          </select>
+          <strong>Uzeyir Gulec</strong>
+        </header>
 
-      <main style={{ padding: "30px" }}>
-        <section style={styles.panel}>
-          <h2>{actiefBedrijf.naam}</h2>
-          <p>KvK: {actiefBedrijf.kvk}</p>
-          <p>BTW: {actiefBedrijf.btw}</p>
-          <p>IBAN: {actiefBedrijf.iban}</p>
-          <p>Volgende factuur: {maakFactuurnummer()}</p>
-        </section>
+        {pagina === "dashboard" && (
+          <>
+            <h1>Dashboard</h1>
+            <section style={s.stats}>
+              <Card title="Klanten" value={klantenBedrijf.length} />
+              <Card title="Facturen" value={facturenBedrijf.length} />
+              <Card title="Openstaand" value={euro(openstaand)} />
+              <Card title="Volgende factuur" value={volgendeFactuurnummer()} />
+            </section>
+          </>
+        )}
 
-        <section style={styles.stats}>
-          <Card title="Klanten" value={klantenVoorBedrijf.length} />
-          <Card title="Facturen" value={facturenVoorBedrijf.length} />
-          <Card title="Openstaand" value={euro(openstaand)} />
-          <Card title="Betaald" value="€ 0,00" />
-        </section>
-
-        <section style={styles.grid}>
-          <form onSubmit={klantOpslaan} style={styles.panel}>
-            <h2>Nieuwe klant</h2>
-            <Input name="bedrijfsnaam" label="Bedrijfsnaam" value={klantFormulier.bedrijfsnaam} onChange={updateKlant} />
-            <Input name="adres" label="Adres" value={klantFormulier.adres} onChange={updateKlant} />
-            <Input name="postcode" label="Postcode" value={klantFormulier.postcode} onChange={updateKlant} />
-            <Input name="plaats" label="Plaats" value={klantFormulier.plaats} onChange={updateKlant} />
-            <Input name="kvk" label="KvK-nummer" value={klantFormulier.kvk} onChange={updateKlant} />
-            <Input name="btw" label="BTW-nummer" value={klantFormulier.btw} onChange={updateKlant} />
-            <Input name="voornaam" label="Voornaam contactpersoon" value={klantFormulier.voornaam} onChange={updateKlant} />
-            <Input name="achternaam" label="Achternaam contactpersoon" value={klantFormulier.achternaam} onChange={updateKlant} />
-            <Input name="email" label="E-mailadres" value={klantFormulier.email} onChange={updateKlant} />
-            <Input name="telefoon" label="Telefoonnummer" value={klantFormulier.telefoon} onChange={updateKlant} />
-            <Button>Klant opslaan</Button>
-          </form>
-
-          <form onSubmit={factuurOpslaan} style={styles.panel}>
-            <h2>Nieuwe factuur</h2>
-
-            <label style={styles.label}>Klant</label>
-            <select name="klantId" value={factuurFormulier.klantId} onChange={updateFactuur} style={styles.input}>
-              <option value="">Kies klant</option>
-              {klantenVoorBedrijf.map((klant) => (
-                <option key={klant.id} value={klant.id}>
-                  {klant.bedrijfsnaam || klant.contactpersoon}
-                </option>
+        {pagina === "klanten" && (
+          <section style={s.panel}>
+            <h1>Klanten</h1>
+            <form onSubmit={klantOpslaan} style={s.formGrid}>
+              {[
+                ["bedrijfsnaam", "Bedrijfsnaam"],
+                ["adres", "Adres"],
+                ["postcode", "Postcode"],
+                ["plaats", "Plaats"],
+                ["kvk", "KvK"],
+                ["btw", "BTW"],
+                ["voornaam", "Voornaam"],
+                ["achternaam", "Achternaam"],
+                ["email", "E-mail"],
+                ["telefoon", "Telefoon"],
+              ].map(([name, label]) => (
+                <input key={name} name={name} value={klantForm[name]} onChange={e => setKlantForm({ ...klantForm, [name]: e.target.value })} placeholder={label} style={s.input} />
               ))}
-            </select>
+              <button style={s.greenButton}>Klant opslaan</button>
+            </form>
 
-            <Input name="omschrijving" label="Omschrijving" value={factuurFormulier.omschrijving} onChange={updateFactuur} />
-            <Input name="aantal" label="Aantal" value={factuurFormulier.aantal} onChange={updateFactuur} />
-            <Input name="prijs" label="Prijs excl. BTW" value={factuurFormulier.prijs} onChange={updateFactuur} />
-
-            <label style={styles.label}>BTW</label>
-            <select name="btwPercentage" value={factuurFormulier.btwPercentage} onChange={updateFactuur} style={styles.input}>
-              <option value="9">9%</option>
-              <option value="21">21%</option>
-              <option value="0">0%</option>
-            </select>
-
-            <Button>Factuur opslaan</Button>
-          </form>
-        </section>
-
-        <section style={styles.panel}>
-          <h2>Facturenlijst</h2>
-
-          {facturenVoorBedrijf.length === 0 ? (
-            <p>Nog geen facturen.</p>
-          ) : (
-            facturenVoorBedrijf.map((factuur) => (
-              <div key={factuur.id} style={styles.item}>
-                <strong>{factuur.factuurnummer}</strong>
-                <p>{factuur.klant_naam}</p>
-                <p>{factuur.omschrijving}</p>
-                <h3>{euro(factuur.totaal)}</h3>
-
-                <button onClick={() => downloadPdf(factuur)} style={styles.button}>
-                  Download PDF
-                </button>
-
-                <button onClick={() => verwijderFactuur(factuur.id)} style={styles.deleteButton}>
-                  Verwijderen
-                </button>
+            {klantenBedrijf.map(k => (
+              <div key={k.id} style={s.row}>
+                <strong>{k.bedrijfsnaam || k.contactpersoon}</strong>
+                <span>{k.email}</span>
               </div>
-            ))
-          )}
-        </section>
+            ))}
+          </section>
+        )}
+
+        {pagina === "facturen" && (
+          <>
+            <section style={s.panel}>
+              <h1>Nieuwe factuur</h1>
+              <form onSubmit={factuurOpslaan}>
+                <select value={factuurForm.klantId} onChange={e => setFactuurForm({ ...factuurForm, klantId: e.target.value })} style={s.input}>
+                  <option value="">Selecteer klant</option>
+                  {klantenBedrijf.map(k => <option key={k.id} value={k.id}>{k.bedrijfsnaam || k.contactpersoon}</option>)}
+                </select>
+
+                <h3>Producten</h3>
+                {factuurForm.regels.map((r, i) => {
+                  const b = berekenRegel(r);
+                  return (
+                    <div key={i} style={s.productLine}>
+                      <input placeholder="Omschrijving" value={r.omschrijving} onChange={e => updateRegel(i, "omschrijving", e.target.value)} style={s.input} />
+                      <input placeholder="Aantal" value={r.aantal} onChange={e => updateRegel(i, "aantal", e.target.value)} style={s.smallInput} />
+                      <input placeholder="Prijs" value={r.prijs} onChange={e => updateRegel(i, "prijs", e.target.value)} style={s.smallInput} />
+                      <select value={r.btwPercentage} onChange={e => updateRegel(i, "btwPercentage", e.target.value)} style={s.smallInput}>
+                        <option value="0">0%</option>
+                        <option value="9">9%</option>
+                        <option value="21">21%</option>
+                      </select>
+                      <strong>{euro(b.totaal)}</strong>
+                      <button type="button" onClick={() => verwijderRegel(i)} style={s.deleteSmall}>×</button>
+                    </div>
+                  );
+                })}
+
+                <button type="button" onClick={voegRegelToe} style={s.greenButton}>+ Product</button>
+
+                <div style={s.totalBox}>
+                  <p>Subtotaal: {euro(berekenFactuur().subtotaal)}</p>
+                  <p>BTW: {euro(berekenFactuur().btw)}</p>
+                  <h2>Totaal: {euro(berekenFactuur().totaal)}</h2>
+                </div>
+
+                <button style={s.blueButton}>Factuur opslaan</button>
+              </form>
+            </section>
+
+            <section style={s.panel}>
+              <h1>Facturen</h1>
+              {facturenBedrijf.map(f => (
+                <div key={f.id} style={s.invoiceRow}>
+                  <strong>{f.factuurnummer}</strong>
+                  <span>{f.klant_naam}</span>
+                  <span>{f.datum}</span>
+                  <strong>{euro(f.totaal)}</strong>
+                  <button onClick={() => downloadPdf(f)} style={s.blueButton}>PDF</button>
+                  <button onClick={() => verwijderFactuur(f.id)} style={s.redButton}>Verwijder</button>
+                </div>
+              ))}
+            </section>
+          </>
+        )}
       </main>
     </div>
   );
 }
 
+function Menu({ label, active, onClick }) {
+  return <button onClick={onClick} style={active ? s.menuActive : s.menu}>{label}</button>;
+}
+
 function Card({ title, value }) {
   return (
-    <div style={styles.card}>
-      <p style={{ color: "#666" }}>{title}</p>
+    <div style={s.card}>
+      <p>{title}</p>
       <h2>{value}</h2>
     </div>
   );
 }
 
-function Input({ label, name, value, onChange }) {
-  return (
-    <div style={{ marginTop: "15px" }}>
-      <label style={styles.label}>{label}</label>
-      <input name={name} value={value} onChange={onChange} placeholder={label} style={styles.input} />
-    </div>
-  );
-}
-
-function Button({ children }) {
-  return <button style={styles.button}>{children}</button>;
-}
-
-function euro(value) {
-  return new Intl.NumberFormat("nl-NL", {
-    style: "currency",
-    currency: "EUR",
-  }).format(value || 0);
-}
-
-const styles = {
-  header: {
-    background: "white",
-    padding: "20px 30px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    boxShadow: "0 2px 12px #00000010",
-  },
-  select: { padding: "12px", borderRadius: "10px", border: "1px solid #ccc" },
-  panel: { background: "white", padding: "30px", borderRadius: "20px", marginBottom: "25px" },
-  stats: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "25px" },
-  grid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px", marginBottom: "25px" },
-  card: { background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 4px 18px #00000010" },
-  item: { border: "1px solid #eee", borderRadius: "14px", padding: "16px", marginBottom: "12px" },
-  label: { display: "block", marginBottom: "6px", marginTop: "12px", fontWeight: "bold" },
-  input: { width: "100%", padding: "13px", border: "1px solid #ddd", borderRadius: "10px", fontSize: "15px" },
-  button: {
-    marginTop: "20px",
-    marginRight: "10px",
-    background: "#e79a3b",
-    color: "white",
-    border: 0,
-    padding: "12px 18px",
-    borderRadius: "12px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-  deleteButton: {
-    marginTop: "20px",
-    background: "#dc2626",
-    color: "white",
-    border: 0,
-    padding: "12px 18px",
-    borderRadius: "12px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
+const s = {
+  app: { display: "flex", minHeight: "100vh", background: "#f6f7fb", fontFamily: "Arial" },
+  sidebar: { width: 270, background: "white", padding: 24, boxShadow: "2px 0 20px #00000010" },
+  logo: { color: "#4f6bed", marginBottom: 30 },
+  menu: { display: "block", width: "100%", padding: 14, marginBottom: 8, background: "white", border: 0, textAlign: "left", borderRadius: 10, fontSize: 16 },
+  menuActive: { display: "block", width: "100%", padding: 14, marginBottom: 8, background: "#5b6ee1", color: "white", border: 0, textAlign: "left", borderRadius: 10, fontSize: 16 },
+  main: { flex: 1, padding: 30 },
+  topbar: { background: "white", padding: 20, borderRadius: 18, marginBottom: 25, display: "flex", justifyContent: "space-between" },
+  select: { padding: 12, borderRadius: 10, border: "1px solid #ddd" },
+  stats: { display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20 },
+  card: { background: "white", padding: 25, borderRadius: 18, boxShadow: "0 10px 30px #00000008" },
+  panel: { background: "white", padding: 25, borderRadius: 18, marginBottom: 25, boxShadow: "0 10px 30px #00000008" },
+  input: { width: "100%", padding: 14, border: "1px solid #ddd", borderRadius: 10, marginBottom: 12 },
+  smallInput: { width: 110, padding: 14, border: "1px solid #ddd", borderRadius: 10 },
+  formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 },
+  row: { padding: 15, borderBottom: "1px solid #eee", display: "flex", justifyContent: "space-between" },
+  productLine: { display: "grid", gridTemplateColumns: "1fr 100px 120px 100px 120px 40px", gap: 10, alignItems: "center", marginBottom: 12 },
+  totalBox: { textAlign: "right", marginTop: 20 },
+  greenButton: { background: "#22c55e", color: "white", padding: "13px 20px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer" },
+  blueButton: { background: "#4f6bed", color: "white", padding: "10px 16px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer" },
+  redButton: { background: "#ef4444", color: "white", padding: "10px 16px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer" },
+  deleteSmall: { background: "#ef4444", color: "white", border: 0, borderRadius: 8, padding: 10 },
+  invoiceRow: { display: "grid", gridTemplateColumns: "120px 1fr 120px 120px 80px 110px", gap: 12, alignItems: "center", padding: 14, borderBottom: "1px solid #eee" },
 };
