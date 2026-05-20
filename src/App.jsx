@@ -332,55 +332,105 @@ export default function App() {
     setFactuurregels(factuurregels.filter(r => r.factuur_id !== id));
   }
 
-  function downloadPdf(factuur) {
-    const klant = klanten.find(k => k.id === factuur.klant_id) || {};
-    const regels = factuurregels.filter(r => r.factuur_id === factuur.id);
-    const doc = new jsPDF();
+async function downloadPdf(factuur) {
+  const klant = klanten.find(k => k.id === factuur.klant_id) || {};
+  const regels = factuurregels.filter(r => r.factuur_id === factuur.id);
 
-    doc.setFontSize(20);
-    doc.text("FACTUUR", 160, 20);
+  const doc = new jsPDF();
+
+  const img = new Image();
+  img.src = "/logo.png";
+
+  img.onload = () => {
+    doc.addImage(img, "PNG", 15, 10, 40, 20);
+
+    doc.setFontSize(22);
+    doc.setTextColor(40);
+    doc.text("FACTUUR", 150, 22);
+
+    doc.setDrawColor(220);
+    doc.line(15, 38, 195, 38);
 
     doc.setFontSize(10);
-    doc.text(bedrijf.naam, 20, 25);
-    doc.text(bedrijf.adres || "-", 20, 32);
-    doc.text(bedrijf.plaats || "-", 20, 39);
-    doc.text(`KvK: ${bedrijf.kvk}`, 20, 50);
-    doc.text(`BTW: ${bedrijf.btw}`, 20, 57);
-    doc.text(`IBAN: ${bedrijf.iban}`, 20, 64);
 
-    doc.text(factuur.klant_naam || "-", 20, 88);
-    doc.text(klant.adres || "-", 20, 95);
-    doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 20, 102);
+    // Bedrijf
+    doc.setTextColor(80);
+    doc.text(bedrijf.naam, 15, 50);
+    doc.text(bedrijf.adres || "-", 15, 56);
+    doc.text(bedrijf.plaats || "-", 15, 62);
+    doc.text(`KvK: ${bedrijf.kvk}`, 15, 74);
+    doc.text(`BTW: ${bedrijf.btw}`, 15, 80);
+    doc.text(`IBAN: ${bedrijf.iban}`, 15, 86);
 
-    doc.text(`Nummer: ${factuur.factuurnummer}`, 140, 88);
-    doc.text(`Datum: ${factuur.datum}`, 140, 95);
-    doc.text(`Vervaldatum: ${factuur.vervaldatum || "-"}`, 140, 102);
+    // Klant
+    doc.setTextColor(30);
+    doc.setFontSize(11);
+    doc.text("Factuur aan:", 120, 50);
 
-    doc.line(20, 125, 190, 125);
-    doc.text("Product", 20, 135);
-    doc.text("Aantal", 95, 135);
-    doc.text("Prijs", 120, 135);
-    doc.text("BTW", 145, 135);
-    doc.text("Totaal", 165, 135);
+    doc.setFontSize(10);
+    doc.text(factuur.klant_naam || "-", 120, 58);
+    doc.text(klant.adres || "-", 120, 64);
+    doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 70);
 
-    let y = 150;
+    // Factuur info
+    doc.setFontSize(10);
+    doc.text(`Factuurnummer: ${factuur.factuurnummer}`, 15, 105);
+    doc.text(`Factuurdatum: ${factuur.datum}`, 15, 112);
+    doc.text(`Vervaldatum: ${factuur.vervaldatum || "-"}`, 15, 119);
+
+    // Tabel header
+    let y = 140;
+
+    doc.setFillColor(79, 107, 237);
+    doc.rect(15, y, 180, 10, "F");
+
+    doc.setTextColor(255);
+    doc.text("Omschrijving", 18, y + 7);
+    doc.text("Aantal", 105, y + 7);
+    doc.text("Prijs", 130, y + 7);
+    doc.text("BTW", 155, y + 7);
+    doc.text("Totaal", 173, y + 7);
+
+    y += 16;
+
+    doc.setTextColor(40);
+
     regels.forEach(r => {
-      doc.text(String(r.omschrijving || "-"), 20, y);
-      doc.text(String(r.aantal), 95, y);
-      doc.text(euro(r.prijs), 120, y);
-      doc.text(`${r.btw_percentage}%`, 145, y);
-      doc.text(euro(r.totaal), 165, y);
-      y += 10;
+      doc.text(String(r.omschrijving || "-"), 18, y);
+      doc.text(String(r.aantal), 108, y);
+      doc.text(euro(r.prijs), 128, y);
+      doc.text(`${r.btw_percentage}%`, 158, y);
+      doc.text(euro(r.totaal), 172, y);
+
+      doc.setDrawColor(235);
+      doc.line(15, y + 4, 195, y + 4);
+
+      y += 12;
     });
 
-    y += 15;
-    doc.text(`Subtotaal: ${euro(factuur.subtotaal)}`, 125, y);
-    doc.text(`BTW: ${euro(factuur.btw_bedrag)}`, 125, y + 8);
-    doc.setFontSize(14);
-    doc.text(`Totaal: ${euro(factuur.totaal)}`, 125, y + 20);
+    y += 10;
 
-    doc.save(`Factuur ${factuur.factuurnummer}.pdf`);
-  }
+    // Totalen
+    doc.setFontSize(11);
+    doc.text(`Subtotaal: ${euro(factuur.subtotaal)}`, 135, y);
+    doc.text(`BTW: ${euro(factuur.btw_bedrag)}`, 135, y + 8);
+
+    doc.setFontSize(16);
+    doc.setTextColor(79, 107, 237);
+    doc.text(`Totaal: ${euro(factuur.totaal)}`, 135, y + 22);
+
+    // Footer
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(
+      "Bedankt voor uw vertrouwen in Facturatie Ten Beste.",
+      15,
+      285
+    );
+
+    doc.save(`Factuur-${factuur.factuurnummer}.pdf`);
+  };
+}
 
   const openstaand = alleFacturenBedrijf
     .filter(f => f.status === "Open")
