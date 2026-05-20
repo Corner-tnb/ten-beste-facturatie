@@ -273,37 +273,18 @@ export default function App() {
     });
   }
 
- async function wijzigStatus(factuur, status) {
-  const updateData = {
-    status,
-  };
+  async function wijzigStatus(factuur, status) {
+    const updateData = { status };
 
-  if (status === "Betaald") {
-    updateData.betaald_op = new Date().toLocaleDateString("nl-NL");
-  } else {
-    updateData.betaald_op = null;
-  }
+    if (status === "Betaald") {
+      updateData.betaald_op = new Date().toLocaleDateString("nl-NL");
+    } else {
+      updateData.betaald_op = null;
+    }
 
-  const { data, error } = await supabase
-    .from("facturen")
-    .update(updateData)
-    .eq("id", factuur.id)
-    .select();
-
-  if (error) return alert(error.message);
-
-  setFacturen(
-    facturen.map((f) =>
-      f.id === factuur.id ? data[0] : f
-    )
-  );
-}
     const { data, error } = await supabase
       .from("facturen")
-      .update({
-        status: "Betaald",
-        betaald_op: new Date().toLocaleDateString("nl-NL"),
-      })
+      .update(updateData)
       .eq("id", factuur.id)
       .select();
 
@@ -606,21 +587,17 @@ export default function App() {
                   <span style={f.status === "Betaald" ? s.statusPaid : s.statusOpen}>{f.status}</span>
                   <div>
                     <button onClick={() => downloadPdf(f)} style={s.blueButton}>PDF</button>
-{f.status !== "Betaald" ? (
-  <button
-    onClick={() => wijzigStatus(f, "Betaald")}
-    style={s.greenButton}
-  >
-    Betaald
-  </button>
-) : (
-  <button
-    onClick={() => wijzigStatus(f, "Open")}
-    style={s.blueButton}
-  >
-    Open zetten
-  </button>
-)}
+
+                    {f.status !== "Betaald" ? (
+                      <button onClick={() => wijzigStatus(f, "Betaald")} style={s.greenButton}>
+                        Betaald
+                      </button>
+                    ) : (
+                      <button onClick={() => wijzigStatus(f, "Open")} style={s.blueButton}>
+                        Open zetten
+                      </button>
+                    )}
+
                     <button onClick={() => verwijderFactuur(f.id)} style={s.redButton}>Verwijder</button>
                   </div>
                 </div>
@@ -687,8 +664,8 @@ const s = {
   blueButton: { background: "#4f6bed", color: "white", padding: "10px 14px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer", marginRight: 6 },
   redButton: { background: "#ef4444", color: "white", padding: "10px 14px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer" },
   deleteSmall: { background: "#ef4444", color: "white", border: 0, borderRadius: 8, padding: 10 },
-  invoiceHeader: { display: "grid", gridTemplateColumns: "120px 1fr 120px 120px 100px 280px", gap: 12, padding: 14, borderBottom: "1px solid #ddd" },
-  invoiceRow: { display: "grid", gridTemplateColumns: "120px 1fr 120px 120px 100px 280px", gap: 12, alignItems: "center", padding: 14, borderBottom: "1px solid #eee" },
+  invoiceHeader: { display: "grid", gridTemplateColumns: "120px 1fr 120px 120px 100px 340px", gap: 12, padding: 14, borderBottom: "1px solid #ddd" },
+  invoiceRow: { display: "grid", gridTemplateColumns: "120px 1fr 120px 120px 100px 340px", gap: 12, alignItems: "center", padding: 14, borderBottom: "1px solid #eee" },
   statusPaid: { background: "#22c55e", color: "white", padding: "6px 10px", borderRadius: 8, fontWeight: "bold", textAlign: "center" },
   statusOpen: { background: "#f97316", color: "white", padding: "6px 10px", borderRadius: 8, fontWeight: "bold", textAlign: "center" },
 };
