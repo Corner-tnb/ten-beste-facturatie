@@ -273,7 +273,31 @@ export default function App() {
     });
   }
 
-  async function markeerBetaald(factuur) {
+ async function wijzigStatus(factuur, status) {
+  const updateData = {
+    status,
+  };
+
+  if (status === "Betaald") {
+    updateData.betaald_op = new Date().toLocaleDateString("nl-NL");
+  } else {
+    updateData.betaald_op = null;
+  }
+
+  const { data, error } = await supabase
+    .from("facturen")
+    .update(updateData)
+    .eq("id", factuur.id)
+    .select();
+
+  if (error) return alert(error.message);
+
+  setFacturen(
+    facturen.map((f) =>
+      f.id === factuur.id ? data[0] : f
+    )
+  );
+}
     const { data, error } = await supabase
       .from("facturen")
       .update({
@@ -582,9 +606,21 @@ export default function App() {
                   <span style={f.status === "Betaald" ? s.statusPaid : s.statusOpen}>{f.status}</span>
                   <div>
                     <button onClick={() => downloadPdf(f)} style={s.blueButton}>PDF</button>
-                    {f.status !== "Betaald" && (
-                      <button onClick={() => markeerBetaald(f)} style={s.greenButton}>Betaald</button>
-                    )}
+{f.status !== "Betaald" ? (
+  <button
+    onClick={() => wijzigStatus(f, "Betaald")}
+    style={s.greenButton}
+  >
+    Betaald
+  </button>
+) : (
+  <button
+    onClick={() => wijzigStatus(f, "Open")}
+    style={s.blueButton}
+  >
+    Open zetten
+  </button>
+)}
                     <button onClick={() => verwijderFactuur(f.id)} style={s.redButton}>Verwijder</button>
                   </div>
                 </div>
