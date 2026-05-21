@@ -167,7 +167,7 @@ export default function App() {
       land: "Nederland",
     };
 
-    const { data, error } = await supabase.from("klanten").insert([nieuweKlant]).select();
+     { data, error } = await supabase.from("klanten").insert([nieuweKlant]).select();
     if (error) return alert(error.message);
 
     setKlanten([data[0], ...klanten]);
@@ -858,31 +858,258 @@ function Card({ title, value }) {
 }
 
 const s = {
-  loginPage: { minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "#f6f7fb", fontFamily: "Arial" },
-  loginBox: { background: "white", padding: 40, borderRadius: 20, width: 400, boxShadow: "0 10px 30px rgba(0,0,0,0.08)" },
-  app: { display: "flex", minHeight: "100vh", background: "#f6f7fb", fontFamily: "Arial" },
-  sidebar: { width: 270, background: "white", padding: 24, boxShadow: "2px 0 20px #00000010" },
-  logo: { color: "#4f6bed", marginBottom: 30 },
-  menu: { display: "block", width: "100%", padding: 14, marginBottom: 8, background: "white", border: 0, textAlign: "left", borderRadius: 10, fontSize: 16 },
-  menuActive: { display: "block", width: "100%", padding: 14, marginBottom: 8, background: "#5b6ee1", color: "white", border: 0, textAlign: "left", borderRadius: 10, fontSize: 16 },
-  main: { flex: 1, padding: 30 },
-  topbar: { background: "white", padding: 20, borderRadius: 18, marginBottom: 25, display: "flex", justifyContent: "space-between" },
-  select: { padding: 12, borderRadius: 10, border: "1px solid #ddd" },
-  stats: { display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20 },
-  card: { background: "white", padding: 25, borderRadius: 18, boxShadow: "0 10px 30px #00000008" },
-  panel: { background: "white", padding: 25, borderRadius: 18, marginBottom: 25, boxShadow: "0 10px 30px #00000008" },
-  editBox: { background: "#f8fafc", padding: 20, borderRadius: 16, marginTop: 20, marginBottom: 20 },
-  input: { width: "100%", padding: 14, border: "1px solid #ddd", borderRadius: 10, marginBottom: 12, boxSizing: "border-box" },
-  smallInput: { width: 100, padding: 14, border: "1px solid #ddd", borderRadius: 10 },
-  formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 },
-  row4: { padding: 15, borderBottom: "1px solid #eee", display: "grid", gridTemplateColumns: "1fr 1fr 120px 120px", gap: 12, alignItems: "center" },
-  row5: { padding: 15, borderBottom: "1px solid #eee", display: "grid", gridTemplateColumns: "1fr 120px 140px 100px 140px", gap: 12, alignItems: "center" },
-  productLine: { display: "grid", gridTemplateColumns: "180px 1fr 90px 110px 90px 110px 60px", gap: 10, alignItems: "center", marginBottom: 12 },
-  totalBox: { textAlign: "right", marginTop: 20 },
-  greenButton: { background: "#22c55e", color: "white", padding: "10px 14px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer", marginRight: 6 },
-  blueButton: { background: "#4f6bed", color: "white", padding: "10px 14px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer", marginRight: 6 },
-  redButton: { background: "#ef4444", color: "white", padding: "10px 14px", border: 0, borderRadius: 10, fontWeight: "bold", cursor: "pointer", marginRight: 6 },
-  invoiceRow: { display: "grid", gridTemplateColumns: "120px 1fr 120px 100px 520px", gap: 12, alignItems: "center", padding: 14, borderBottom: "1px solid #eee" },
-  statusPaid: { background: "#22c55e", color: "white", padding: "6px 10px", borderRadius: 8, fontWeight: "bold", textAlign: "center" },
-  statusOpen: { background: "#f97316", color: "white", padding: "6px 10px", borderRadius: 8, fontWeight: "bold", textAlign: "center" },
+  loginPage: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#f6f7fb",
+    fontFamily: "Arial",
+    padding: 20,
+  },
+
+  loginBox: {
+    background: "white",
+    padding: 40,
+    borderRadius: 20,
+    width: "100%",
+    maxWidth: 400,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  },
+
+  app: {
+    display: "flex",
+    flexWrap: "wrap",
+    minHeight: "100vh",
+    background: "#f6f7fb",
+    fontFamily: "Arial",
+  },
+
+  sidebar: {
+    width: "100%",
+    maxWidth: 270,
+    background: "white",
+    padding: 24,
+    boxShadow: "2px 0 20px #00000010",
+  },
+
+  logo: {
+    color: "#4f6bed",
+    marginBottom: 30,
+  },
+
+  menu: {
+    display: "block",
+    width: "100%",
+    padding: 14,
+    marginBottom: 8,
+    background: "white",
+    border: 0,
+    textAlign: "left",
+    borderRadius: 10,
+    fontSize: 16,
+    cursor: "pointer",
+  },
+
+  menuActive: {
+    display: "block",
+    width: "100%",
+    padding: 14,
+    marginBottom: 8,
+    background: "#5b6ee1",
+    color: "white",
+    border: 0,
+    textAlign: "left",
+    borderRadius: 10,
+    fontSize: 16,
+    cursor: "pointer",
+  },
+
+  main: {
+    flex: 1,
+    padding: 20,
+    minWidth: 0,
+  },
+
+  topbar: {
+    background: "white",
+    padding: 20,
+    borderRadius: 18,
+    marginBottom: 25,
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  select: {
+    padding: 12,
+    borderRadius: 10,
+    border: "1px solid #ddd",
+    width: "100%",
+    maxWidth: 320,
+  },
+
+  stats: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+    gap: 20,
+  },
+
+  card: {
+    background: "white",
+    padding: 25,
+    borderRadius: 18,
+    boxShadow: "0 10px 30px #00000008",
+  },
+
+  panel: {
+    background: "white",
+    padding: 25,
+    borderRadius: 18,
+    marginBottom: 25,
+    boxShadow: "0 10px 30px #00000008",
+    overflowX: "auto",
+  },
+
+  editBox: {
+    background: "#f8fafc",
+    padding: 20,
+    borderRadius: 16,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+
+  input: {
+    width: "100%",
+    padding: 14,
+    border: "1px solid #ddd",
+    borderRadius: 10,
+    marginBottom: 12,
+    boxSizing: "border-box",
+  },
+
+  smallInput: {
+    width: "100%",
+    minWidth: 90,
+    padding: 14,
+    border: "1px solid #ddd",
+    borderRadius: 10,
+  },
+
+  formGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+    gap: 12,
+  },
+
+  row4: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    padding: 15,
+    borderBottom: "1px solid #eee",
+    alignItems: "center",
+  },
+
+  row5: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    padding: 15,
+    borderBottom: "1px solid #eee",
+    alignItems: "center",
+  },
+
+  productLine: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+
+  totalBox: {
+    textAlign: "right",
+    marginTop: 20,
+  },
+
+  greenButton: {
+    background: "#22c55e",
+    color: "white",
+    padding: "10px 14px",
+    border: 0,
+    borderRadius: 10,
+    fontWeight: "bold",
+    cursor: "pointer",
+    marginRight: 6,
+  },
+
+  blueButton: {
+    background: "#4f6bed",
+    color: "white",
+    padding: "10px 14px",
+    border: 0,
+    borderRadius: 10,
+    fontWeight: "bold",
+    cursor: "pointer",
+    marginRight: 6,
+  },
+
+  redButton: {
+    background: "#ef4444",
+    color: "white",
+    padding: "10px 14px",
+    border: 0,
+    borderRadius: 10,
+    fontWeight: "bold",
+    cursor: "pointer",
+    marginRight: 6,
+  },
+
+  invoiceRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    alignItems: "center",
+    padding: 14,
+    borderBottom: "1px solid #eee",
+  },
+
+  statusPaid: {
+    background: "#22c55e",
+    color: "white",
+    padding: "6px 10px",
+    borderRadius: 8,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  statusOpen: {
+    background: "#f97316",
+    color: "white",
+    padding: "6px 10px",
+    borderRadius: 8,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  mobileWrap: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+
+  mobileColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+  },
+
+  responsiveGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+    gap: 20,
+  },
 };
