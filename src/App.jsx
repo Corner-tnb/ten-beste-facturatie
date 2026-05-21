@@ -618,17 +618,62 @@ export default function App() {
           </div>
         </header>
 
-        {pagina === "dashboard" && (
-          <>
-            <h1>Dashboard</h1>
-            <section style={s.stats}>
-              <Card title="Openstaand" value={euro(openstaand)} />
-              <Card title="Betaald" value={euro(betaald)} />
-              <Card title="Facturen" value={alleFacturenBedrijf.length} />
-              <Card title="Klanten" value={klantenBedrijf.length} />
-            </section>
-          </>
+       {pagina === "dashboard" && (
+  <>
+    <h1>Dashboard</h1>
+
+    <section style={s.stats}>
+      <Card title="Openstaand" value={euro(openstaand)} />
+      <Card title="Betaald" value={euro(betaald)} />
+      <Card title="Facturen" value={alleFacturenBedrijf.length} />
+      <Card title="Klanten" value={klantenBedrijf.length} />
+      <Card
+        title="Deze maand"
+        value={euro(
+          alleFacturenBedrijf
+            .filter((f) => f.status === "Betaald")
+            .reduce((sum, f) => sum + Number(f.totaal || 0), 0)
         )}
+      />
+      <Card
+        title="Open facturen"
+        value={alleFacturenBedrijf.filter((f) => f.status === "Open").length}
+      />
+    </section>
+
+    <section style={{ ...s.panel, marginTop: 25 }}>
+      <h2>Laatste facturen</h2>
+
+      {alleFacturenBedrijf.slice(0, 5).map((f) => (
+        <div key={f.id} style={s.invoiceRow}>
+          <strong>{f.factuurnummer}</strong>
+          <span>{f.klant_naam}</span>
+          <span>{f.datum}</span>
+          <strong>{euro(f.totaal)}</strong>
+          <span style={f.status === "Betaald" ? s.statusPaid : s.statusOpen}>
+            {f.status}
+          </span>
+        </div>
+      ))}
+    </section>
+
+    <section style={{ ...s.panel, marginTop: 25 }}>
+      <h2>Openstaande facturen</h2>
+
+      {alleFacturenBedrijf
+        .filter((f) => f.status === "Open")
+        .map((f) => (
+          <div key={f.id} style={s.invoiceRow}>
+            <strong>{f.factuurnummer}</strong>
+            <span>{f.klant_naam}</span>
+            <span>{f.datum}</span>
+            <strong>{euro(f.totaal)}</strong>
+            <span style={s.statusOpen}>Open</span>
+          </div>
+        ))}
+    </section>
+  </>
+)}
 
         {pagina === "klanten" && (
           <section style={s.panel}>
