@@ -132,11 +132,11 @@ export default function App() {
   }
 
 async function haalVolgendFactuurnummer() {
-  const { data, error } = await supabase
-    .from("factuur_tellers")
-    .select("*")
-    .eq("bedrijf", bedrijf.naam)
-    .single();
+const { data, error } = await supabase
+  .from("factuur_tellers")
+  .select("*")
+  .eq("bedrijf", bedrijf.naam)
+  .maybeSingle();
 
   if (error) {
     alert("Factuurnummer ophalen mislukt: " + error.message);
