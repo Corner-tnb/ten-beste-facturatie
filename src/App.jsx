@@ -131,9 +131,32 @@ export default function App() {
     }).format(Number(v || 0));
   }
 
-  function volgendeFactuurnummer() {
-    return `2026.${String(alleFacturenBedrijf.length + bedrijf.startNummer).padStart(4, "0")}`;
+async function haalVolgendFactuurnummer() {
+  const { data, error } = await supabase
+    .from("factuur_tellers")
+    .select("*")
+    .eq("bedrijf", bedrijf.naam)
+    .single();
+
+  if (error) {
+    alert("Factuurnummer ophalen mislukt: " + error.message);
+    return null;
   }
+
+  const nieuwNummer = Number(data.laatste_nummer) + 1;
+
+  const { error: updateError } = await supabase
+    .from("factuur_tellers")
+    .update({ laatste_nummer: nieuwNummer })
+    .eq("bedrijf", bedrijf.naam);
+
+  if (updateError) {
+    alert("Factuurnummer bijwerken mislukt: " + updateError.message);
+    return null;
+  }
+
+  return `2026.${String(nieuwNummer).padStart(4, "0")}`;
+}
 
   function berekenRegel(r) {
     const subtotaal = Number(r.aantal || 0) * Number(r.prijs || 0);
@@ -363,7 +386,7 @@ export default function App() {
       bedrijf: bedrijf.naam,
       klant_id: klant.id,
       klant_naam: klant.bedrijfsnaam || klant.contactpersoon,
-      factuurnummer: volgendeFactuurnummer(),
+    factuurnummer: await haalVolgendFactuurnummer(),
       datum: new Date().toLocaleDateString("nl-NL"),
       vervaldatum: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("nl-NL"),
       omschrijving: "Meerdere producten",
