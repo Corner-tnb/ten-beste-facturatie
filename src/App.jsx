@@ -132,11 +132,32 @@ export default function App() {
   }
 
 async function haalVolgendFactuurnummer() {
-const { data, error } = await supabase
-  .from("factuur_tellers")
-  .select("*")
-  .eq("bedrijf", bedrijf.naam)
-  .maybeSingle();
+  const { data, error } = await supabase
+    .from("factuur_tellers")
+    .select("*")
+    .eq("bedrijf", bedrijf.naam)
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    alert("Factuurnummer ophalen mislukt");
+    return null;
+  }
+
+  const teller = data[0];
+  const nieuwNummer = Number(teller.laatste_nummer) + 1;
+
+  const { error: updateError } = await supabase
+    .from("factuur_tellers")
+    .update({ laatste_nummer: nieuwNummer })
+    .eq("id", teller.id);
+
+  if (updateError) {
+    alert("Factuurnummer bijwerken mislukt: " + updateError.message);
+    return null;
+  }
+
+  return `2026.${String(nieuwNummer).padStart(4, "0")}`;
+}
 
   if (error) {
     alert("Factuurnummer ophalen mislukt: " + error.message);
