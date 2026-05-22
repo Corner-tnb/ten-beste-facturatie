@@ -443,6 +443,7 @@ async function haalVolgendFactuurnummer() {
 
     setBewerkFactuur({
       ...factuur,
+       factuurnummer: factuur.factuurnummer,
       klantId: factuur.klant_id,
       regels: regels.length ? regels : [{ omschrijving: "", aantal: 1, prijs: "", btwPercentage: 21 }],
       notitie: factuur.notitie || "",
@@ -461,6 +462,7 @@ async function haalVolgendFactuurnummer() {
     const totalen = berekenRegels(bewerkFactuur.regels);
 
     const updateFactuur = {
+      factuurnummer: bewerkFactuur.factuurnummer,
       klant_id: klant.id,
       klant_naam: klant.bedrijfsnaam || klant.contactpersoon,
       subtotaal: totalen.subtotaal,
@@ -991,7 +993,17 @@ async function haalVolgendFactuurnummer() {
         {pagina === "factuur-bewerken" && bewerkFactuur && (
           <section style={s.panel}>
             <h1>Factuur bewerken: {bewerkFactuur.factuurnummer}</h1>
-
+<input
+  placeholder="Factuurnummer"
+  value={bewerkFactuur.factuurnummer || ""}
+  onChange={(e) =>
+    setBewerkFactuur({
+      ...bewerkFactuur,
+      factuurnummer: e.target.value,
+    })
+  }
+  style={s.input}
+/>
             <form onSubmit={bewaarBewerking}>
               <select
                 value={bewerkFactuur.klantId}
