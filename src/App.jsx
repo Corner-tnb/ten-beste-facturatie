@@ -772,6 +772,12 @@ async function haalVolgendFactuurnummer() {
               <Card title="Open facturen" value={alleFacturenBedrijf.filter((f) => f.status === "Open").length} />
               <Card title="Betaalde facturen" value={alleFacturenBedrijf.filter((f) => f.status === "Betaald").length} />
             </section>
+            <button
+  onClick={exporteerCSV}
+  style={{ ...s.greenButton, marginTop: 20 }}
+>
+  Exporteer boekhouding CSV
+</button>
 
             <section style={{ ...s.panel, marginTop: 25 }}>
               <h2>Laatste facturen</h2>
