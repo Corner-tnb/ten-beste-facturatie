@@ -654,11 +654,48 @@ async function haalVolgendFactuurnummer() {
     .filter((f) => f.status === "Open")
     .reduce((s, f) => s + Number(f.totaal || 0), 0);
 
-  const betaald = alleFacturenBedrijf
-    .filter((f) => f.status === "Betaald")
-    .reduce((s, f) => s + Number(f.totaal || 0), 0);
+const betaald = alleFacturenBedrijf
+  .filter((f) => f.status === "Betaald")
+  .reduce((s, f) => s + Number(f.totaal || 0), 0);
 
-  if (!session) {
+function exporteerCSV() {
+  const rows = [
+    ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
+  ];
+
+  alleFacturenBedrijf.forEach((f) => {
+    rows.push([
+      f.factuurnummer || "",
+      f.klant_naam || "",
+      f.datum || "",
+      f.status || "",
+      f.subtotaal || 0,
+      f.btw_bedrag || 0,
+      f.totaal || 0,
+    ]);
+  });
+
+  const csv = rows.map((r) => r.join(";")).join("\n");
+
+  const blob = new Blob(["\uFEFF" + csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `boekhouding-${bedrijf.naam}.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+if (!session) {
+  
     return (
       <div style={s.loginPage}>
         <form onSubmit={login} style={s.loginBox}>
@@ -1179,42 +1216,7 @@ function ProductRegel({ r, i, producten, kiesProduct, updateRegel, verwijderRege
 }
 
 
-function exporteerCSV() {
-  const rows = [
-    ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
-  ];
 
-  alleFacturenBedrijf.forEach((f) => {
-    rows.push([
-      f.factuurnummer || "",
-      f.klant_naam || "",
-      f.datum || "",
-      f.status || "",
-      f.subtotaal || 0,
-      f.btw_bedrag || 0,
-      f.totaal || 0,
-    ]);
-  });
-
-  const csv = rows.map((r) => r.join(";")).join("\n");
-
-  const blob = new Blob(["\uFEFF" + csv], {
-    type: "text/csv;charset=utf-8;",
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = `boekhouding-${bedrijf.naam}.csv`;
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
-}
-if (!session) {
 
 
 function Menu({ label, active, onClick }) {
