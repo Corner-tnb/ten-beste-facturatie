@@ -131,27 +131,21 @@ export default function App() {
     }).format(Number(v || 0));
   }
 
-  async function haalVolgendFactuurnummer() {
-  const { data, error } = await supabase
-    .from("factuur_tellers")
-    .select("*")
-    .eq("bedrijf", bedrijf.naam)
-    .limit(1);
+async function haalVolgendFactuurnummer() {
+  const { data: facturenData } = await supabase
+    .from("facturen")
+    .select("factuurnummer")
+    .eq("bedrijf", bedrijf.naam);
 
-  if (error || !data || data.length === 0) {
-    alert("Factuurnummer ophalen mislukt");
-    return null;
-  }
+  let hoogste = 0;
 
-  const teller = data[0];
-  const nieuwNummer = Number(teller.laatste_nummer || 0) + 1;
+  (facturenData || []).forEach((f) => {
+    const nr = Number(String(f.factuurnummer).split(".")[1]);
 
-  await supabase
-    .from("factuur_tellers")
-    .update({
-      laatste_nummer: nieuwNummer,
-    })
-    .eq("id", teller.id);
+    if (nr > hoogste) hoogste = nr;
+  });
+
+  const nieuwNummer = hoogste + 1;
 
   return `2026.${String(nieuwNummer).padStart(4, "0")}`;
 }
