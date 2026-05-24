@@ -526,7 +526,42 @@ export default function App() {
     setFacturen(facturen.map((f) => (f.id === factuur.id ? data[0] : f)));
   }
 
-  async function verwijderFactuur(id) {
+ async function verwijderFactuur(id) {
+  if (!confirm("Factuur verwijderen?")) return;
+
+  const factuur = facturen.find((f) => f.id === id);
+
+  if (!factuur) return;
+
+  const nummer = Number(
+    String(factuur.factuurnummer).split(".")[1]
+  );
+
+  const { data: tellerData } = await supabase
+    .from("factuur_tellers")
+    .select("*")
+    .eq("bedrijf", factuur.bedrijf)
+    .limit(1);
+
+  if (tellerData && tellerData.length > 0) {
+    const teller = tellerData[0];
+
+    if (nummer === teller.laatste_nummer) {
+      await supabase
+        .from("factuur_tellers")
+        .update({
+          laatste_nummer: nummer - 1,
+        })
+        .eq("id", teller.id);
+    }
+  }
+
+  await supabase.from("facturen").delete().eq("id", id);
+
+  setFacturen(facturen.filter((f) => f.id !== id));
+  setFactuurregels(factuurregels.filter((r) => r.factuur_id !== id));
+}
+  
     if (!confirm("Factuur verwijderen?")) return;
 
     await supabase.from("facturen").delete().eq("id", id);
