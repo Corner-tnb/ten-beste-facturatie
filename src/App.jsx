@@ -562,14 +562,6 @@ export default function App() {
   setFactuurregels(factuurregels.filter((r) => r.factuur_id !== id));
 }
   
-    if (!confirm("Factuur verwijderen?")) return;
-
-    await supabase.from("facturen").delete().eq("id", id);
-
-    setFacturen(facturen.filter((f) => f.id !== id));
-    setFactuurregels(factuurregels.filter((r) => r.factuur_id !== id));
-  }
-
   async function downloadPdf(factuur) {
     const klant = klanten.find((k) => k.id === factuur.klant_id) || {};
     const regels = factuurregels.filter((r) => r.factuur_id === factuur.id);
