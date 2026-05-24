@@ -714,6 +714,56 @@ async function haalVolgendFactuurnummer() {
           <>
             <h1>Dashboard</h1>
 
+            <div style={s.stats}>
+  <Card
+    title="Omzet totaal"
+    value={euro(
+      alleFacturenBedrijf.reduce(
+        (s, f) => s + Number(f.totaal || 0),
+        0
+      )
+    )}
+  />
+
+  <Card
+    title="BTW totaal"
+    value={euro(
+      alleFacturenBedrijf.reduce(
+        (s, f) => s + Number(f.btw_bedrag || 0),
+        0
+      )
+    )}
+  />
+
+  <Card
+    title="Openstaand"
+    value={euro(
+      alleFacturenBedrijf
+        .filter((f) => f.status === "Open")
+        .reduce((s, f) => s + Number(f.totaal || 0), 0)
+    )}
+  />
+
+  <Card
+    title="Betaald"
+    value={euro(
+      alleFacturenBedrijf
+        .filter((f) => f.status === "Betaald")
+        .reduce((s, f) => s + Number(f.totaal || 0), 0)
+    )}
+  />
+
+  <Card
+    title="Aantal facturen"
+    value={alleFacturenBedrijf.length}
+  />
+
+  <Card
+    title="Aantal klanten"
+    value={klantenBedrijf.length}
+  />
+</div>
+
             <section style={s.stats}>
               <Card title="Openstaand" value={euro(openstaand)} />
               <Card title="Betaald" value={euro(betaald)} />
