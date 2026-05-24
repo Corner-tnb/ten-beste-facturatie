@@ -1172,6 +1172,51 @@ function ProductRegel({ r, i, producten, kiesProduct, updateRegel, verwijderRege
   );
 }
 
+function exporteerCSV() {
+  const rows = [
+    [
+      "Factuurnummer",
+      "Klant",
+      "Datum",
+      "Status",
+      "Subtotaal",
+      "BTW",
+      "Totaal",
+    ],
+  ];
+
+  alleFacturenBedrijf.forEach((f) => {
+    rows.push([
+      f.factuurnummer,
+      f.klant_naam,
+      f.datum,
+      f.status,
+      f.subtotaal,
+      f.btw_bedrag,
+      f.totaal,
+    ]);
+  });
+
+  const csv = rows.map((r) => r.join(";")).join("\n");
+
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute(
+    "download",
+    `boekhouding-${bedrijf.naam}.csv`
+  );
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function Menu({ label, active, onClick }) {
   return <button onClick={onClick} style={active ? s.menuActive : s.menu}>{label}</button>;
 }
