@@ -1178,8 +1178,8 @@ function ProductRegel({ r, i, producten, kiesProduct, updateRegel, verwijderRege
   );
 }
 
-if (!session) {
-  function exporteerCSV() {
+
+function exporteerCSV() {
   const rows = [
     ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
   ];
@@ -1214,6 +1214,7 @@ if (!session) {
 
   URL.revokeObjectURL(url);
 }
+if (!session) {
 
 
 function Menu({ label, active, onClick }) {
