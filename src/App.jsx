@@ -825,7 +825,18 @@ if (!session) {
                   <span>{f.klant_naam}</span>
                   <span>{f.datum}</span>
                   <strong>{euro(f.totaal)}</strong>
-                  <span style={f.status === "Betaald" ? s.statusPaid : s.statusOpen}>
+                <span
+  style={
+    f.status === "Betaald"
+      ? s.statusPaid
+      : new Date(
+          f.vervaldatum.split("/").reverse().join("-")
+        ) < new Date()
+      ? s.statusLate
+      : s.statusOpen
+    
+  }
+>
                     {f.status}
                   </span>
                 </div>
@@ -1469,4 +1480,12 @@ const s = {
     fontWeight: "bold",
     textAlign: "center",
   },
+  statusLate: {
+  background: "#dc2626",
+  color: "white",
+  padding: "6px 10px",
+  borderRadius: 8,
+  fontWeight: "bold",
+  textAlign: "center",
+},
 };
