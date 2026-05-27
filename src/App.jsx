@@ -1211,9 +1211,44 @@ if (!session) {
                 style={{ ...s.input, minHeight: 90 }}
               />
 
-              <div style={s.totalBox}>
-                <h2>Totaal: {euro(berekenRegels(bewerkFactuur.regels).totaal)}</h2>
-              </div>
+<div
+  style={{
+    background: darkMode ? "#111827" : "#f8fafc",
+    color: darkMode ? "white" : "#111827",
+    padding: 28,
+    borderRadius: 24,
+    marginTop: 25,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 20,
+    border: darkMode
+      ? "1px solid #374151"
+      : "1px solid #e5e7eb",
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 14,
+        opacity: 0.7,
+        marginBottom: 6,
+      }}
+    >
+      Factuur totaal
+    </div>
+
+    <div
+      style={{
+        fontSize: 38,
+        fontWeight: "bold",
+      }}
+    >
+      {euro(berekenRegels(bewerkFactuur.regels).totaal)}
+    </div>
+  </div>
+</div>
 
               <button style={s.greenButton}>Wijzigingen opslaan</button>
               <button type="button" onClick={() => { setBewerkFactuur(null); setPagina("facturen"); }} style={s.redButton}>Annuleren</button>
