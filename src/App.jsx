@@ -1263,17 +1263,18 @@ const s = {
     boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
   },
 
-  app: {
-    display: "flex",
+app: {
+  display: "flex",
+  flexDirection: window.innerWidth < 900 ? "column" : "row",
     flexWrap: "wrap",
     minHeight: "100vh",
     background: "#f6f7fb",
     fontFamily: "Arial",
   },
 
-  sidebar: {
-    width: "100%",
-    maxWidth: 270,
+sidebar: {
+  width: "100%",
+  maxWidth: window.innerWidth < 900 ? "100%" : 270,
     background: "white",
     padding: 24,
     boxShadow: "2px 0 20px #00000010",
