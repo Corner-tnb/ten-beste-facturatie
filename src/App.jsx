@@ -733,7 +733,7 @@ if (!session) {
     background: darkMode ? "#0f172a" : "#f6f7fb",
     color: darkMode ? "white" : "#111827",
   }}
->
+  >
       <aside style={s.sidebar}>
         <h2 style={s.logo}>Facturatie Ten Beste</h2>
         <Menu label="Dashboard" active={pagina === "dashboard"} onClick={() => setPagina("dashboard")} />
