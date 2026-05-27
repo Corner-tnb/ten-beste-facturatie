@@ -662,15 +662,15 @@ async function haalVolgendFactuurnummer() {
   doc.text(`BTW (${btwPercentage}%)`, 115, y + 12);
   doc.text(euro(factuur.btw_bedrag), 170, y + 12);
 
-  doc.setDrawColor(...blauw);
-  doc.setLineWidth(0.5);
-  doc.line(110, y + 22, 195, y + 22);
+doc.setDrawColor(...blauw);
+doc.setLineWidth(0.5);
+doc.line(110, y + 18, 195, y + 18);
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.setTextColor(...blauw);
-  doc.text("Totaal", 115, y + 38);
-  doc.text(euro(factuur.totaal), 165, y + 38);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(20);
+doc.setTextColor(...blauw);
+doc.text("Totaal", 115, y + 34);
+doc.text(euro(factuur.totaal), 165, y + 34);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
