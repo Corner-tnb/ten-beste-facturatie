@@ -605,19 +605,19 @@ async function haalVolgendFactuurnummer() {
 
   doc.setDrawColor(...blauw);
   doc.setLineWidth(0.6);
-  doc.line(15, 128, 195, 128);
+  doc.line(15, 110, 195, 110);
 
   doc.setFont("helvetica", "bold");
-  doc.text("Factuurnummer:", 120, 142);
-  doc.text("Factuurdatum:", 120, 152);
-  doc.text("Vervaldatum:", 120, 162);
+  doc.text("Factuurnummer:", 120, 124);
+  doc.text("Factuurdatum:", 120, 134);
+  doc.text("Vervaldatum:", 120, 144);
 
   doc.setFont("helvetica", "normal");
-  doc.text(String(factuur.factuurnummer || "-"), 165, 142);
-  doc.text(String(factuur.datum || "-"), 165, 152);
-  doc.text(String(factuur.vervaldatum || "-"), 165, 162);
+  doc.text(String(factuur.factuurnummer || "-"), 165, 124);
+  doc.text(String(factuur.datum || "-"), 165, 134);
+  doc.text(String(factuur.vervaldatum || "-"), 165, 144);
 
-  let y = 185;
+let y = 160;
 
   doc.setFillColor(...blauw);
   doc.rect(15, y, 180, 11, "F");
