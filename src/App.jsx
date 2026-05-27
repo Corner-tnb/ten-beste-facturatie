@@ -752,7 +752,53 @@ if (!session) {
         {pagina === "dashboard" && (
           <>
             <h1>Dashboard</h1>
+<div
+  style={{
+    background: "#fff7ed",
+    border: "1px solid #fdba74",
+    padding: 20,
+    borderRadius: 14,
+    marginBottom: 20,
+  }}
+>
+  <h2 style={{ marginTop: 0 }}>
+    Debiteuren overzicht
+  </h2>
 
+  <p>
+    Openstaande facturen:{" "}
+    <strong>
+      {
+        alleFacturenBedrijf.filter(
+          (f) => f.status === "Open"
+        ).length
+      }
+    </strong>
+  </p>
+
+  <p>
+    Verlopen facturen:{" "}
+    <strong>
+      {
+        alleFacturenBedrijf.filter(
+          (f) =>
+            f.status === "Open" &&
+            new Date(
+              f.vervaldatum
+                .split("/")
+                .reverse()
+                .join("-")
+            ) < new Date()
+        ).length
+      }
+    </strong>
+  </p>
+
+  <p>
+    Openstaand bedrag:{" "}
+    <strong>{euro(openstaand)}</strong>
+  </p>
+</div>
             <div style={s.stats}>
   <Card
     title="Omzet totaal"
