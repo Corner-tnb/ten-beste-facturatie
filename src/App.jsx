@@ -1398,11 +1398,10 @@ const s = {
 
 app: {
   display: "flex",
-  flexDirection:
-    window.innerWidth < 900 ? "column" : "row",
+  flexDirection: window.innerWidth < 900 ? "column" : "row",
   minHeight: "100vh",
-  background: darkMode ? "#0f172a" : "#f6f7fb",
-  color: darkMode ? "white" : "#111827",
+  background: "#f6f7fb",
+  color: "#111827",
   fontFamily: "Arial",
 },
 
