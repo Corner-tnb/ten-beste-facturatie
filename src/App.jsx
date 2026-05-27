@@ -1477,13 +1477,17 @@ topbar: {
   boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
 },
 
-  select: {
-    padding: 12,
-    borderRadius: 10,
-    border: "1px solid #ddd",
-    width: "100%",
-    maxWidth: 320,
-  },
+select: {
+  padding: 12,
+  borderRadius: 10,
+  width: "100%",
+  maxWidth: 320,
+  background: darkMode ? "#1f2937" : "white",
+  color: darkMode ? "white" : "#111827",
+  border: darkMode
+    ? "1px solid #374151"
+    : "1px solid #ddd",
+},
 
   stats: {
     display: "grid",
@@ -1501,7 +1505,8 @@ card: {
 },
 
   panel: {
-    background: "white",
+   background: darkMode ? "#111827" : "white",
+    color: darkMode ? "white" : "#111827",
     padding: 25,
     borderRadius: 18,
     marginBottom: 25,
@@ -1517,14 +1522,18 @@ card: {
     marginBottom: 20,
   },
 
-  input: {
-    width: "100%",
-    padding: 14,
-    border: "1px solid #ddd",
-    borderRadius: 10,
-    marginBottom: 12,
-    boxSizing: "border-box",
-  },
+input: {
+  width: "100%",
+  padding: 14,
+  background: darkMode ? "#1f2937" : "white",
+  color: darkMode ? "white" : "#111827",
+  border: darkMode
+    ? "1px solid #374151"
+    : "1px solid #ddd",
+  borderRadius: 10,
+  marginBottom: 12,
+  boxSizing: "border-box",
+},
 
   smallInput: {
     width: "100%",
