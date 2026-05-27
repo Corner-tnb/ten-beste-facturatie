@@ -1480,13 +1480,11 @@ topbar: {
 select: {
   padding: 12,
   borderRadius: 10,
+  border: "1px solid #ddd",
   width: "100%",
   maxWidth: 320,
-  background: darkMode ? "#1f2937" : "white",
-  color: darkMode ? "white" : "#111827",
-  border: darkMode
-    ? "1px solid #374151"
-    : "1px solid #ddd",
+  background: "white",
+  color: "#111827",
 },
 
   stats: {
@@ -1504,15 +1502,15 @@ card: {
   transition: "0.2s",
 },
 
-  panel: {
-   background: darkMode ? "#111827" : "white",
-    color: darkMode ? "white" : "#111827",
-    padding: 25,
-    borderRadius: 18,
-    marginBottom: 25,
-    boxShadow: "0 10px 30px #00000008",
-    overflowX: "auto",
-  },
+panel: {
+  background: "white",
+  color: "#111827",
+  padding: 25,
+  borderRadius: 18,
+  marginBottom: 25,
+  boxShadow: "0 10px 30px #00000008",
+  overflowX: "auto",
+},
 
   editBox: {
     background: "#f8fafc",
@@ -1525,11 +1523,9 @@ card: {
 input: {
   width: "100%",
   padding: 14,
-  background: darkMode ? "#1f2937" : "white",
-  color: darkMode ? "white" : "#111827",
-  border: darkMode
-    ? "1px solid #374151"
-    : "1px solid #ddd",
+  background: "white",
+  color: "#111827",
+  border: "1px solid #ddd",
   borderRadius: 10,
   marginBottom: 12,
   boxSizing: "border-box",
