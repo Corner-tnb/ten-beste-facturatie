@@ -14,11 +14,11 @@ export default function App() {
       iban: "NL85ABNA0120545004",
       startNummer: 14,
     },
-    {
-      naam: "Ten Beste Investment B.V.",
-      adres: "",
-      plaats: "",
-      land: "Nederland",
+{
+  naam: "Ten Beste Investment B.V.",
+  adres: "Archimedesbaan 6-15",
+  plaats: "3436 ME Nieuwegein",
+  land: "Nederland",
       kvk: "98613375",
       btw: "NL868569021B01",
       iban: "NL03ABNA0149841159",
