@@ -1087,11 +1087,54 @@ if (!session) {
 
                 <button type="button" onClick={() => voegRegelToe(false)} style={s.greenButton}>+ Product</button>
 
-                <div style={s.totalBox}>
-                  <h2>Totaal: {euro(berekenFactuur().totaal)}</h2>
-                </div>
+<div
+  style={{
+    background: darkMode ? "#111827" : "#f8fafc",
+    color: darkMode ? "white" : "#111827",
+    padding: 28,
+    borderRadius: 24,
+    marginTop: 25,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 20,
+    border: darkMode
+      ? "1px solid #374151"
+      : "1px solid #e5e7eb",
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 14,
+        opacity: 0.7,
+        marginBottom: 6,
+      }}
+    >
+      Factuur totaal
+    </div>
 
-                <button style={s.blueButton}>Factuur opslaan</button>
+    <div
+      style={{
+        fontSize: 38,
+        fontWeight: "bold",
+      }}
+    >
+      {euro(berekenFactuur().totaal)}
+    </div>
+  </div>
+
+  <button
+    style={{
+      ...s.blueButton,
+      padding: "16px 24px",
+      fontSize: 16,
+    }}
+  >
+    Factuur opslaan
+  </button>
+</div>
               </form>
             </section>
 
