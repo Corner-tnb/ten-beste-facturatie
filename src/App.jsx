@@ -1455,14 +1455,15 @@ sidebar: {
     marginRight: 6,
   },
 
-  invoiceRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 12,
-    alignItems: "center",
-    padding: 14,
-    borderBottom: "1px solid #eee",
-  },
+invoiceRow: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 12,
+  flexDirection: window.innerWidth < 700 ? "column" : "row",
+  alignItems: window.innerWidth < 700 ? "flex-start" : "center",
+  padding: 14,
+  borderBottom: "1px solid #eee",
+},
 
   statusPaid: {
     background: "#22c55e",
