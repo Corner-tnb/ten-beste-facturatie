@@ -559,99 +559,151 @@ async function haalVolgendFactuurnummer() {
   setFactuurregels(factuurregels.filter((r) => r.factuur_id !== id));
 }
   
-  async function downloadPdf(factuur) {
-    const klant = klanten.find((k) => k.id === factuur.klant_id) || {};
-    const regels = factuurregels.filter((r) => r.factuur_id === factuur.id);
-    const doc = new jsPDF();
+ async function downloadPdf(factuur) {
+  const klant = klanten.find((k) => k.id === factuur.klant_id) || {};
+  const regels = factuurregels.filter((r) => r.factuur_id === factuur.id);
+  const doc = new jsPDF();
 
-    const img = new Image();
-    img.src = "/logo.png";
+  const blauw = [0, 70, 210];
 
-    img.onload = () => {
-      doc.addImage(img, "PNG", 15, 10, 40, 20);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(36);
+  doc.setTextColor(...blauw);
+  doc.text("FACTUUR", 15, 25);
 
-      doc.setFontSize(22);
-      doc.setTextColor(40);
-      doc.text("FACTUUR", 150, 22);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(14);
+  doc.setTextColor(20);
+  doc.text(String(factuur.factuurnummer || "-"), 15, 38);
 
-      doc.setDrawColor(220);
-      doc.line(15, 38, 195, 38);
+  doc.setFontSize(10);
+  doc.setTextColor(20);
 
-      doc.setFontSize(10);
-      doc.setTextColor(80);
-      doc.text(bedrijf.naam, 15, 50);
-      doc.text(bedrijf.adres || "-", 15, 56);
-      doc.text(bedrijf.plaats || "-", 15, 62);
-      doc.text(`KvK: ${bedrijf.kvk}`, 15, 74);
-      doc.text(`BTW: ${bedrijf.btw}`, 15, 80);
-      doc.text(`IBAN: ${bedrijf.iban}`, 15, 86);
+  doc.setFont("helvetica", "bold");
+  doc.text(bedrijf.naam, 15, 58);
+  doc.setFont("helvetica", "normal");
+  doc.text(bedrijf.adres || "-", 15, 66);
+  doc.text(bedrijf.plaats || "-", 15, 74);
+  doc.text(bedrijf.land || "Nederland", 15, 82);
 
-      doc.setTextColor(30);
-      doc.setFontSize(11);
-      doc.text("Factuur aan:", 120, 50);
+  doc.setFont("helvetica", "bold");
+  doc.text("KvK-nr:", 15, 100);
+  doc.text("BTW-nr:", 15, 108);
+  doc.text("IBAN:", 15, 116);
 
-      doc.setFontSize(10);
-      doc.text(factuur.klant_naam || "-", 120, 58);
-      doc.text(klant.adres || "-", 120, 64);
-      doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 70);
+  doc.setFont("helvetica", "normal");
+  doc.text(bedrijf.kvk || "-", 38, 100);
+  doc.text(bedrijf.btw || "-", 38, 108);
+  doc.text(bedrijf.iban || "-", 38, 116);
 
-      doc.text(`Factuurnummer: ${factuur.factuurnummer}`, 15, 105);
-      doc.text(`Factuurdatum: ${factuur.datum}`, 15, 112);
-      doc.text(`Vervaldatum: ${factuur.vervaldatum || "-"}`, 15, 119);
+  doc.setFont("helvetica", "bold");
+  doc.text("Factuur aan:", 120, 58);
+  doc.setFont("helvetica", "normal");
+  doc.text(factuur.klant_naam || "-", 120, 66);
+  doc.text(klant.adres || "-", 120, 74);
+  doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 82);
 
-      let y = 140;
+  doc.setDrawColor(...blauw);
+  doc.setLineWidth(0.6);
+  doc.line(15, 128, 195, 128);
 
-      doc.setFillColor(79, 107, 237);
-      doc.rect(15, y, 180, 10, "F");
+  doc.setFont("helvetica", "bold");
+  doc.text("Factuurnummer:", 120, 142);
+  doc.text("Factuurdatum:", 120, 152);
+  doc.text("Vervaldatum:", 120, 162);
 
-      doc.setTextColor(255);
-      doc.text("Omschrijving", 18, y + 7);
-      doc.text("Aantal", 105, y + 7);
-      doc.text("Prijs", 130, y + 7);
-      doc.text("BTW", 155, y + 7);
-      doc.text("Totaal", 173, y + 7);
+  doc.setFont("helvetica", "normal");
+  doc.text(String(factuur.factuurnummer || "-"), 165, 142);
+  doc.text(String(factuur.datum || "-"), 165, 152);
+  doc.text(String(factuur.vervaldatum || "-"), 165, 162);
 
-      y += 16;
-      doc.setTextColor(40);
+  let y = 185;
 
-      regels.forEach((r) => {
-        doc.text(String(r.omschrijving || "-"), 18, y);
-        doc.text(String(r.aantal), 108, y);
-        doc.text(euro(r.prijs), 128, y);
-        doc.text(`${r.btw_percentage}%`, 158, y);
-        doc.text(euro(r.totaal), 172, y);
+  doc.setFillColor(...blauw);
+  doc.rect(15, y, 180, 11, "F");
 
-        doc.setDrawColor(235);
-        doc.line(15, y + 4, 195, y + 4);
-        y += 12;
-      });
+  doc.setTextColor(255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("Omschrijving", 18, y + 7);
+  doc.text("Aantal", 88, y + 7);
+  doc.text("Prijs", 116, y + 7);
+  doc.text("BTW", 145, y + 7);
+  doc.text("Totaal", 173, y + 7);
 
-      y += 10;
+  y += 20;
 
-      doc.setFontSize(11);
-      doc.text(`Subtotaal: ${euro(factuur.subtotaal)}`, 135, y);
-      doc.text(`BTW: ${euro(factuur.btw_bedrag)}`, 135, y + 8);
+  doc.setTextColor(20);
+  doc.setFont("helvetica", "normal");
 
-      doc.setFontSize(16);
-      doc.setTextColor(79, 107, 237);
-      doc.text(`Totaal: ${euro(factuur.totaal)}`, 135, y + 22);
+  regels.forEach((r) => {
+    doc.text(String(r.omschrijving || "-"), 18, y);
+    doc.text(String(r.aantal || 0), 90, y);
+    doc.text(euro(r.prijs), 112, y);
+    doc.text(`${r.btw_percentage || 0}%`, 146, y);
+    doc.text(euro(r.totaal), 170, y);
 
-      doc.setFontSize(10);
-      doc.setTextColor(40);
+    doc.setDrawColor(220);
+    doc.setLineWidth(0.2);
+    doc.line(15, y + 8, 195, y + 8);
 
-      doc.text(
-        "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum over te maken onder vermelding van het factuurnummer.",
-        105,
-        255,
-        { align: "center", maxWidth: 170 }
-      );
+    y += 14;
+  });
 
-      doc.text(`${bedrijf.naam} * IBAN: ${bedrijf.iban}`, 105, 272, { align: "center" });
-      doc.text(`BTW nummer: ${bedrijf.btw} * KvK nummer: ${bedrijf.kvk}`, 105, 280, { align: "center" });
+  y += 12;
 
-      doc.save(`Factuur-${factuur.factuurnummer}.pdf`);
-    };
-  }
+  const btwPercentage = regels[0]?.btw_percentage || 21;
+
+  doc.setFontSize(11);
+  doc.setTextColor(20);
+  doc.text("Subtotaal", 115, y);
+  doc.text(euro(factuur.subtotaal), 170, y);
+
+  doc.text(`BTW (${btwPercentage}%)`, 115, y + 12);
+  doc.text(euro(factuur.btw_bedrag), 170, y + 12);
+
+  doc.setDrawColor(...blauw);
+  doc.setLineWidth(0.5);
+  doc.line(110, y + 22, 195, y + 22);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.setTextColor(...blauw);
+  doc.text("Totaal", 115, y + 38);
+  doc.text(euro(factuur.totaal), 165, y + 38);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(20);
+
+  doc.text(
+    "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum",
+    15,
+    248
+  );
+  doc.text(
+    "over te maken onder vermelding van het factuurnummer.",
+    15,
+    256
+  );
+
+  doc.setDrawColor(...blauw);
+  doc.line(15, 266, 195, 266);
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...blauw);
+  doc.text(bedrijf.naam, 15, 278);
+  doc.text("BTW-nummer:", 15, 288);
+  doc.text("KvK-nummer:", 92, 288);
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(20);
+  doc.text(`IBAN: ${bedrijf.iban}`, 75, 278);
+  doc.text(bedrijf.btw || "-", 45, 288);
+  doc.text(bedrijf.kvk || "-", 125, 288);
+
+  doc.save(`Factuur-${factuur.factuurnummer}.pdf`);
+}
 
   const openstaand = alleFacturenBedrijf
     .filter((f) => f.status === "Open")
