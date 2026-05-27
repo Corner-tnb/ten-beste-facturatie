@@ -43,6 +43,7 @@ export default function App() {
 
   const [zoekterm, setZoekterm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Alles");
+  const [darkMode, setDarkMode] = useState(false);
 
   const [klantForm, setKlantForm] = useState({
     bedrijfsnaam: "",
@@ -745,6 +746,12 @@ if (!session) {
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
             <strong>{session.user.email}</strong>
+            <button
+  onClick={() => setDarkMode(!darkMode)}
+  style={s.blueButton}
+>
+  {darkMode ? "☀️ Light" : "🌙 Dark"}
+</button>
             <button onClick={logout} style={s.redButton}>Uitloggen</button>
           </div>
         </header>
@@ -1213,7 +1220,7 @@ if (!session) {
 
 <div
   style={{
-    background: darkMode ? "#111827" : "#f8fafc",
+color: darkMode ? "white" : "#111827",
     color: darkMode ? "white" : "#111827",
     padding: 28,
     borderRadius: 24,
@@ -1348,12 +1355,13 @@ const s = {
 
 app: {
   display: "flex",
-  flexDirection: window.innerWidth < 900 ? "column" : "row",
-    flexWrap: "wrap",
-    minHeight: "100vh",
-    background: "#f6f7fb",
-    fontFamily: "Arial",
-  },
+  flexDirection:
+    window.innerWidth < 900 ? "column" : "row",
+  minHeight: "100vh",
+  background: darkMode ? "#0f172a" : "#f6f7fb",
+  color: darkMode ? "white" : "#111827",
+  fontFamily: "Arial",
+},
 
 sidebar: {
   width: "100%",
