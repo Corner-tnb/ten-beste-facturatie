@@ -137,10 +137,12 @@ async function haalVolgendFactuurnummer() {
     .select("factuurnummer")
     .eq("bedrijf", bedrijf.naam);
 
-  let hoogste = 0;
+  let hoogste = bedrijf.startNummer - 1;
 
   (facturenData || []).forEach((f) => {
-    const nr = Number(String(f.factuurnummer).split(".")[1]);
+    const nr = Number(
+      String(f.factuurnummer).split(".")[1]
+    );
 
     if (nr > hoogste) hoogste = nr;
   });
