@@ -604,9 +604,9 @@ async function downloadPdf(factuur) {
   doc.text("IBAN:", 15, 139);
 
   doc.setFont("helvetica", "normal");
-  doc.text(bedrijf.kvk || "-", 38, 115);
-  doc.text(bedrijf.btw || "-", 38, 127);
-  doc.text(bedrijf.iban || "-", 38, 139);
+  doc.text(bedrijf.kvk || "-", 45, 115);
+  doc.text(bedrijf.btw || "-", 45, 127);
+  doc.text(bedrijf.iban || "-", 45, 139);
 
   // FACTUUR INFO RECHTS
   doc.setFont("helvetica", "bold");
