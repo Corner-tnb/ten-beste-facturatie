@@ -584,40 +584,40 @@ async function downloadPdf(factuur) {
   doc.text(bedrijf.naam, 15, 55);
 
   doc.setFont("helvetica", "normal");
-doc.text(bedrijf.adres || "-", 15, 64);
-doc.text(bedrijf.plaats || "-", 15, 74);
-doc.text(bedrijf.land || "Nederland", 15, 84);
+doc.text(bedrijf.adres || "-", 15, 62);
+doc.text(bedrijf.plaats || "-", 15, 70);
+doc.text(bedrijf.land || "Nederland", 15, 78);
 
   // KLANT
   doc.setFont("helvetica", "bold");
   doc.text("Factuur aan:", 120, 55);
 
   doc.setFont("helvetica", "normal");
-doc.text(factuur.klant_naam || "-", 120, 64);
-doc.text(klant.adres || "-", 120, 74);
-doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 84);
+doc.text(factuur.klant_naam || "-", 120, 62);
+doc.text(klant.adres || "-", 120, 70);
+doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 78);
 
   // KVK / BTW / IBAN
   doc.setFont("helvetica", "bold");
-doc.text("KvK-nr:", 15, 108);
-doc.text("BTW-nr:", 15, 118);
-doc.text("IBAN:", 15, 128);
+doc.text("KvK-nr:", 15, 100);
+doc.text("BTW-nr:", 15, 108);
+doc.text("IBAN:", 15, 116);
 
   doc.setFont("helvetica", "normal");
-  doc.text(bedrijf.kvk || "-", 38, 108);
-  doc.text(bedrijf.btw || "-", 38, 1118);
-  doc.text(bedrijf.iban || "-", 38, 128);
+doc.text(bedrijf.kvk || "-", 38, 100);
+doc.text(bedrijf.btw || "-", 38, 108);
+doc.text(bedrijf.iban || "-", 38, 116);
 
   // FACTUUR INFO RECHTS
   doc.setFont("helvetica", "bold");
-doc.text("Factuurnummer:", 120, 108);
-doc.text("Factuurdatum:", 120, 118);
-doc.text("Vervaldatum:", 120, 128);
+doc.text("Factuurnummer:", 120, 100);
+doc.text("Factuurdatum:", 120, 108);
+doc.text("Vervaldatum:", 120, 116);
 
   doc.setFont("helvetica", "normal");
-doc.text(String(factuur.factuurnummer || "-"), 175, 108);
-doc.text(String(factuur.datum || "-"), 175, 118);
-doc.text(String(factuur.vervaldatum || "-"), 175, 128);
+doc.text(String(factuur.factuurnummer || "-"), 175, 100);
+doc.text(String(factuur.datum || "-"), 175, 108);
+doc.text(String(factuur.vervaldatum || "-"), 175, 116);
   
   // BLAUWE LIJN
   doc.setDrawColor(...blauw);
