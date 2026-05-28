@@ -690,40 +690,40 @@ async function downloadPdf(factuur) {
   doc.text("Totaal", 120, y + 42);
   doc.text(euro(factuur.totaal), 162, y + 42);
 
-  // BETAALTEKST
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(20);
+// BETAALTEKST
+doc.setFont("helvetica", "normal");
+doc.setFontSize(10);
+doc.setTextColor(20);
 
-  doc.text(
-    "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum",
-    15,
-    y + 68
-  );
+doc.text(
+  "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum",
+  15,
+  245
+);
 
-  doc.text(
-    "over te maken onder vermelding van het factuurnummer.",
-    15,
-    y + 78
-  );
+doc.text(
+  "over te maken onder vermelding van het factuurnummer.",
+  15,
+  253
+);
 
-  // FOOTER
-  doc.setDrawColor(...blauw);
-  doc.line(15, y + 92, 195, y + 92);
+// FOOTER
+doc.setDrawColor(...blauw);
+doc.line(15, 267, 195, 267);
 
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(...blauw);
+doc.setFont("helvetica", "bold");
+doc.setTextColor(...blauw);
 
-  doc.text(bedrijf.naam, 15, y + 106);
-  doc.text("BTW-nummer:", 15, y + 120);
-  doc.text("KvK-nummer:", 110, y + 120);
+doc.text(bedrijf.naam, 15, 280);
+doc.text("BTW-nummer:", 15, 290);
+doc.text("KvK-nummer:", 105, 290);
 
-  doc.setTextColor(20);
-  doc.setFont("helvetica", "normal");
+doc.setTextColor(20);
+doc.setFont("helvetica", "normal");
 
-  doc.text(`IBAN: ${bedrijf.iban}`, 72, y + 106);
-  doc.text(bedrijf.btw || "-", 50, y + 120);
-  doc.text(bedrijf.kvk || "-", 145, y + 120);
+doc.text(`IBAN: ${bedrijf.iban}`, 70, 280);
+doc.text(bedrijf.btw || "-", 48, 290);
+doc.text(bedrijf.kvk || "-", 140, 290);
 
   doc.save(`Factuur-${factuur.factuurnummer}.pdf`);
 }
