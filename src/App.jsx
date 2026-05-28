@@ -608,16 +608,15 @@ async function haalVolgendFactuurnummer() {
   doc.line(15, 110, 195, 110);
 
   doc.setFont("helvetica", "bold");
-  doc.text("Factuurnummer:", 120, 124);
-  doc.text("Factuurdatum:", 120, 134);
-  doc.text("Vervaldatum:", 120, 144);
+  doc.text("Factuurnummer:", 120, 118);
+doc.text("Factuurdatum:", 120, 128);
+doc.text("Vervaldatum:", 120, 138);
 
-  doc.setFont("helvetica", "normal");
-  doc.text(String(factuur.factuurnummer || "-"), 165, 124);
-  doc.text(String(factuur.datum || "-"), 165, 134);
-  doc.text(String(factuur.vervaldatum || "-"), 165, 144);
+doc.text(String(factuur.factuurnummer || "-"), 165, 118);
+doc.text(String(factuur.datum || "-"), 165, 128);
+doc.text(String(factuur.vervaldatum || "-"), 165, 138);
 
-let y = 160;
+let y = 150;
 
   doc.setFillColor(...blauw);
   doc.rect(15, y, 180, 11, "F");
@@ -650,7 +649,7 @@ let y = 160;
     y += 14;
   });
 
-  y += 12;
+ y += 4;
 
   const btwPercentage = regels[0]?.btw_percentage || 21;
 
@@ -679,12 +678,12 @@ doc.text(euro(factuur.totaal), 165, y + 34);
   doc.text(
     "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum",
     15,
-    248
+    240
   );
   doc.text(
     "over te maken onder vermelding van het factuurnummer.",
     15,
-    256
+    248
   );
 
   doc.setDrawColor(...blauw);
