@@ -610,9 +610,9 @@ doc.text(bedrijf.iban || "-", 38, 116);
 
   // FACTUUR INFO RECHTS
   doc.setFont("helvetica", "bold");
-doc.text("Factuurnummer:", 120, 100);
-doc.text("Factuurdatum:", 120, 108);
-doc.text("Vervaldatum:", 120, 116);
+doc.text("Factuurnummer:", 132, 100);
+doc.text("Factuurdatum:", 132, 108);
+doc.text("Vervaldatum:", 132, 116);
 
   doc.setFont("helvetica", "normal");
 doc.text(String(factuur.factuurnummer || "-"), 175, 100);
