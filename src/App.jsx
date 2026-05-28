@@ -622,10 +622,10 @@ doc.text(String(factuur.vervaldatum || "-"), 175, 116);
   // BLAUWE LIJN
   doc.setDrawColor(...blauw);
   doc.setLineWidth(0.5);
-  doc.line(15, 150, 195, 150);
+doc.line(15, 126, 195, 126);
 
   // TABEL HEADER
-  let y = 165;
+let y = 138;
 
   doc.setFillColor(...blauw);
   doc.rect(15, y, 180, 12, "F");
