@@ -584,41 +584,41 @@ async function downloadPdf(factuur) {
   doc.text(bedrijf.naam, 15, 55);
 
   doc.setFont("helvetica", "normal");
-  doc.text(bedrijf.adres || "-", 15, 67);
-  doc.text(bedrijf.plaats || "-", 15, 79);
-  doc.text(bedrijf.land || "Nederland", 15, 91);
+doc.text(bedrijf.adres || "-", 15, 64);
+doc.text(bedrijf.plaats || "-", 15, 74);
+doc.text(bedrijf.land || "Nederland", 15, 84);
 
   // KLANT
   doc.setFont("helvetica", "bold");
   doc.text("Factuur aan:", 120, 55);
 
   doc.setFont("helvetica", "normal");
-  doc.text(factuur.klant_naam || "-", 120, 67);
-  doc.text(klant.adres || "-", 120, 79);
-  doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 91);
+doc.text(factuur.klant_naam || "-", 120, 64);
+doc.text(klant.adres || "-", 120, 74);
+doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 120, 84);
 
   // KVK / BTW / IBAN
   doc.setFont("helvetica", "bold");
-  doc.text("KvK-nr:", 15, 115);
-  doc.text("BTW-nr:", 15, 127);
-  doc.text("IBAN:", 15, 139);
+doc.text("KvK-nr:", 15, 108);
+doc.text("BTW-nr:", 15, 118);
+doc.text("IBAN:", 15, 128);
 
   doc.setFont("helvetica", "normal");
-  doc.text(bedrijf.kvk || "-", 45, 115);
-  doc.text(bedrijf.btw || "-", 45, 127);
-  doc.text(bedrijf.iban || "-", 45, 139);
+  doc.text(bedrijf.kvk || "-", 38, 108);
+  doc.text(bedrijf.btw || "-", 38, 1118);
+  doc.text(bedrijf.iban || "-", 38, 128);
 
   // FACTUUR INFO RECHTS
   doc.setFont("helvetica", "bold");
-  doc.text("Factuurnummer:", 120, 115);
-  doc.text("Factuurdatum:", 120, 127);
-  doc.text("Vervaldatum:", 120, 139);
+doc.text("Factuurnummer:", 120, 108);
+doc.text("Factuurdatum:", 120, 118);
+doc.text("Vervaldatum:", 120, 128);
 
   doc.setFont("helvetica", "normal");
-  doc.text(String(factuur.factuurnummer || "-"), 175, 115);
-  doc.text(String(factuur.datum || "-"), 175, 127);
-  doc.text(String(factuur.vervaldatum || "-"), 175, 139);
-
+doc.text(String(factuur.factuurnummer || "-"), 175, 108);
+doc.text(String(factuur.datum || "-"), 175, 118);
+doc.text(String(factuur.vervaldatum || "-"), 175, 128);
+  
   // BLAUWE LIJN
   doc.setDrawColor(...blauw);
   doc.setLineWidth(0.5);
