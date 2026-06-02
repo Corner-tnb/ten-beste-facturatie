@@ -626,11 +626,11 @@ doc.text("Vervaldatum:", 110, 130);
 
 doc.setFont("helvetica", "normal");
 
-doc.text(String(factuur.factuurnummer || "-"), 155, 118);
-doc.text(String(factuur.datum || "-"), 155, 126);
-doc.text(String(factuur.vervaldatum || "-"), 155, 134);
+doc.text(String(factuur.factuurnummer || "-"), 155, 114);
+doc.text(String(factuur.datum || "-"), 155, 122);
+doc.text(String(factuur.vervaldatum || "-"), 155, 130);
 
- let y = 130;
+ let y = 140;
 
   // Tabel
   doc.setFillColor(...blauw);
