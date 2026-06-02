@@ -620,9 +620,9 @@ doc.line(15, 110, 195, 110);
   // Factuur info
   doc.setFont("helvetica", "bold");
   doc.setTextColor(20);
-doc.text("Factuurnummer:", 110, 118);
-doc.text("Factuurdatum:", 110, 126);
-doc.text("Vervaldatum:", 110, 134);
+doc.text("Factuurnummer:", 110, 114);
+doc.text("Factuurdatum:", 110, 122);
+doc.text("Vervaldatum:", 110, 130);
 
 doc.setFont("helvetica", "normal");
 
@@ -630,7 +630,7 @@ doc.text(String(factuur.factuurnummer || "-"), 155, 118);
 doc.text(String(factuur.datum || "-"), 155, 126);
 doc.text(String(factuur.vervaldatum || "-"), 155, 134);
 
- let y = 140;
+ let y = 130;
 
   // Tabel
   doc.setFillColor(...blauw);
@@ -688,10 +688,10 @@ doc.line(105, y + 18, 195, y + 18);
 
   // Totaal box
   doc.setFillColor(235, 240, 255);
-doc.rect(105, y + 22, 90, 16, "F");
+doc.rect(110, y + 22, 85, 14, "F");
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
+  doc.setFontSize(16);
   doc.setTextColor(...blauw);
 
   doc.text("Totaal", 115, y + 33);
@@ -715,7 +715,7 @@ doc.rect(105, y + 22, 90, 16, "F");
 
   // Footer
   doc.setDrawColor(...blauw);
-  doc.line(15, 266, 195, 266);
+doc.line(15, 255, 195, 255);
 
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...blauw);
