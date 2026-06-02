@@ -620,14 +620,15 @@ doc.line(15, 110, 195, 110);
   // Factuur info
   doc.setFont("helvetica", "bold");
   doc.setTextColor(20);
-  doc.text("Factuurnummer:", 115, 118);
-  doc.text("Factuurdatum:", 115, 126);
-  doc.text("Vervaldatum:", 115, 134);
+doc.text("Factuurnummer:", 110, 118);
+doc.text("Factuurdatum:", 110, 126);
+doc.text("Vervaldatum:", 110, 134);
 
-  doc.setFont("helvetica", "normal");
-  doc.text(String(factuur.factuurnummer || "-"), 115, 118);
-  doc.text(String(factuur.datum || "-"), 115, 126);
-  doc.text(String(factuur.vervaldatum || "-"), 115, 134);
+doc.setFont("helvetica", "normal");
+
+doc.text(String(factuur.factuurnummer || "-"), 155, 118);
+doc.text(String(factuur.datum || "-"), 155, 126);
+doc.text(String(factuur.vervaldatum || "-"), 155, 134);
 
   let y = 145;
 
