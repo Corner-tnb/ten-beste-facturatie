@@ -630,7 +630,7 @@ doc.text(String(factuur.factuurnummer || "-"), 155, 114);
 doc.text(String(factuur.datum || "-"), 155, 122);
 doc.text(String(factuur.vervaldatum || "-"), 155, 130);
 
- let y = 140;
+ let y = 136;
 
   // Tabel
   doc.setFillColor(...blauw);
@@ -715,22 +715,22 @@ doc.rect(110, y + 22, 85, 14, "F");
 
   // Footer
   doc.setDrawColor(...blauw);
-doc.line(15, 265, 195, 265);
+doc.line(15, 265, 195, 255);
 
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...blauw);
 
-  doc.text(bedrijf.naam, 15, 278);
-  doc.text("IBAN", 15, 288);
-  doc.text("BTW-nummer", 85, 288);
-  doc.text("KvK-nummer", 150, 288);
+  doc.text(bedrijf.naam, 15, 268);
+  doc.text("IBAN", 15, 278);
+  doc.text("BTW-nummer", 85, 278);
+  doc.text("KvK-nummer", 150, 278);
 
   doc.setFont("helvetica", "normal");
   doc.setTextColor(20);
 
-  doc.text(bedrijf.iban || "-", 15, 294);
-  doc.text(bedrijf.btw || "-", 85, 294);
-  doc.text(bedrijf.kvk || "-", 150, 294);
+  doc.text(bedrijf.iban || "-", 15, 284);
+  doc.text(bedrijf.btw || "-", 85, 284);
+  doc.text(bedrijf.kvk || "-", 150, 284);
 
   doc.save(`Factuur-${factuur.factuurnummer}.pdf`);
 }
