@@ -578,17 +578,17 @@ async function downloadPdf(factuur) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(15);
   doc.setTextColor(20);
-  doc.text(String(factuur.factuurnummer || "-"), 15, 42);
+  doc.text(String(factuur.factuurnummer || "-"), 15, 34);
 
   // Linker blok klant
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text(factuur.klant_naam || "-", 15, 62);
+  doc.text(factuur.klant_naam || "-", 15, 52);
 
   doc.setFont("helvetica", "normal");
-  doc.text(klant.adres || "-", 15, 74);
-  doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 15, 86);
-  doc.text(klant.land || "Nederland", 15, 98);
+  doc.text(klant.adres || "-", 15, 60);
+  doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 15, 68);
+  doc.text(klant.land || "Nederland", 15, 76);
 
   // Rechter blok bedrijf
   doc.setFont("helvetica", "bold");
@@ -599,37 +599,37 @@ async function downloadPdf(factuur) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
   doc.setTextColor(20);
-  doc.text(bedrijf.adres || "-", 195, 35, { align: "right" });
-  doc.text(bedrijf.plaats || "-", 195, 47, { align: "right" });
-  doc.text(bedrijf.land || "Nederland", 195, 59, { align: "right" });
+  doc.text(bedrijf.adres || "-", 195, 32, { align: "right" });
+  doc.text(bedrijf.plaats || "-", 195, 40, { align: "right" });
+  doc.text(bedrijf.land || "Nederland", 195, 48, { align: "right" });
 
   doc.setFont("helvetica", "bold");
-  doc.text("KvK-nr:", 130, 82);
-  doc.text("BTW-nr:", 130, 94);
-  doc.text("IBAN:", 130, 106);
+  doc.text("KvK-nr:", 130, 84);
+  doc.text("BTW-nr:", 130, 92);
+  doc.text("IBAN:", 130, 100);
 
   doc.setFont("helvetica", "normal");
-  doc.text(bedrijf.kvk || "-", 158, 82);
-  doc.text(bedrijf.btw || "-", 158, 94);
-  doc.text(bedrijf.iban || "-", 158, 106);
+  doc.text(bedrijf.kvk || "-", 158, 84);
+  doc.text(bedrijf.btw || "-", 158, 92);
+  doc.text(bedrijf.iban || "-", 158, 100);
 
   doc.setDrawColor(...blauw);
   doc.setLineWidth(0.6);
-  doc.line(15, 122, 195, 122);
+doc.line(15, 110, 195, 110);
 
   // Factuur info
   doc.setFont("helvetica", "bold");
   doc.setTextColor(20);
-  doc.text("Factuurnummer:", 115, 136);
-  doc.text("Factuurdatum:", 115, 148);
-  doc.text("Vervaldatum:", 115, 160);
+  doc.text("Factuurnummer:", 115, 118);
+  doc.text("Factuurdatum:", 115, 126);
+  doc.text("Vervaldatum:", 115, 134);
 
   doc.setFont("helvetica", "normal");
-  doc.text(String(factuur.factuurnummer || "-"), 170, 136);
-  doc.text(String(factuur.datum || "-"), 170, 148);
-  doc.text(String(factuur.vervaldatum || "-"), 170, 160);
+  doc.text(String(factuur.factuurnummer || "-"), 115, 118);
+  doc.text(String(factuur.datum || "-"), 115, 126);
+  doc.text(String(factuur.vervaldatum || "-"), 115, 134);
 
-  let y = 180;
+  let y = 145;
 
   // Tabel
   doc.setFillColor(...blauw);
