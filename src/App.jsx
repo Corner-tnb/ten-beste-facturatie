@@ -630,11 +630,11 @@ doc.text(String(factuur.factuurnummer || "-"), 155, 118);
 doc.text(String(factuur.datum || "-"), 155, 126);
 doc.text(String(factuur.vervaldatum || "-"), 155, 134);
 
-  let y = 145;
+ let y = 140;
 
   // Tabel
   doc.setFillColor(...blauw);
-  doc.roundedRect(15, y, 180, 13, 2, 2, "F");
+  doc.rect(15, y, 180, 13, "F");
 
   doc.setTextColor(255);
   doc.setFont("helvetica", "bold");
@@ -679,23 +679,23 @@ doc.text(String(factuur.vervaldatum || "-"), 155, 134);
   doc.text("Subtotaal", 115, y);
   doc.text(euro(factuur.subtotaal), 170, y);
 
-  doc.text(`BTW (${btwPercentage}%)`, 115, y + 14);
+doc.text(`BTW (${btwPercentage}%)`, 115, y + 10);
   doc.text(euro(factuur.btw_bedrag), 170, y + 14);
 
   doc.setDrawColor(...blauw);
   doc.setLineWidth(0.5);
-  doc.line(105, y + 25, 195, y + 25);
+doc.line(105, y + 18, 195, y + 18);
 
   // Totaal box
   doc.setFillColor(235, 240, 255);
-  doc.roundedRect(105, y + 32, 90, 18, 3, 3, "F");
+doc.rect(105, y + 22, 90, 16, "F");
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
   doc.setTextColor(...blauw);
 
-  doc.text("Totaal", 115, y + 45);
-  doc.text(euro(factuur.totaal), 158, y + 45);
+  doc.text("Totaal", 115, y + 33);
+  doc.text(euro(factuur.totaal), 158, y + 33);
 
   // Betaaltekst vaste plek
   doc.setFont("helvetica", "normal");
