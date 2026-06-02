@@ -715,7 +715,7 @@ doc.rect(110, y + 22, 85, 14, "F");
 
   // Footer
   doc.setDrawColor(...blauw);
-doc.line(15, 265, 195, 255);
+doc.line(15, 265, 195, 265);
 
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...blauw);
