@@ -1195,26 +1195,43 @@ if (!session) {
       : "1px solid #e5e7eb",
   }}
 >
-  <div>
-    <div
-      style={{
-        fontSize: 14,
-        opacity: 0.7,
-        marginBottom: 6,
-      }}
-    >
-      Factuur totaal
-    </div>
-
-    <div
-      style={{
-        fontSize: 38,
-        fontWeight: "bold",
-      }}
-    >
-      {euro(berekenFactuur().totaal)}
-    </div>
+<div>
+  <div
+    style={{
+      fontSize: 14,
+      opacity: 0.7,
+      marginBottom: 12,
+    }}
+  >
+    Factuur totaal
   </div>
+
+  <div style={{ marginBottom: 6 }}>
+    Excl. BTW: <strong>{euro(berekenFactuur().subtotaal)}</strong>
+  </div>
+
+  <div style={{ marginBottom: 12 }}>
+    BTW: <strong>{euro(berekenFactuur().btw)}</strong>
+  </div>
+
+  <div
+    style={{
+      fontSize: 38,
+      fontWeight: "bold",
+    }}
+  >
+    {euro(berekenFactuur().totaal)}
+  </div>
+
+  <div
+    style={{
+      fontSize: 12,
+      opacity: 0.7,
+    }}
+  >
+    Incl. BTW
+  </div>
+</div>
 
   <button
     style={{
