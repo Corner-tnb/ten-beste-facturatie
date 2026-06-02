@@ -644,7 +644,7 @@ doc.text(String(factuur.vervaldatum || "-"), 155, 130);
   doc.text("Aantal", 82, y + 8);
   doc.text("Prijs", 112, y + 8);
   doc.text("BTW", 145, y + 8);
-  doc.text("Totaal", 172, y + 8);
+doc.text("Excl. BTW", 168, y + 8);
 
   y += 24;
 
@@ -657,11 +657,11 @@ doc.text(String(factuur.vervaldatum || "-"), 155, 130);
       y = 25;
     }
 
-    doc.text(String(r.omschrijving || "-"), 20, y);
-    doc.text(String(r.aantal || 0), 85, y);
-    doc.text(euro(r.prijs), 108, y);
-    doc.text(`${r.btw_percentage || 0}%`, 146, y);
-    doc.text(euro(r.totaal), 170, y);
+doc.text(String(r.omschrijving || "-"), 20, y);
+doc.text(String(r.aantal || 0), 85, y);
+doc.text(euro(r.prijs), 108, y);
+doc.text(`${r.btw_percentage || 0}%`, 146, y);
+doc.text(euro(r.subtotaal), 170, y);
 
     doc.setDrawColor(225);
     doc.line(15, y + 8, 195, y + 8);
