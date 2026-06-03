@@ -989,34 +989,7 @@ if (!session) {
   Exporteer boekhouding CSV
 </button>
 <section style={{ ...s.panel, marginTop: 25 }}>
-  <h2>Omzet per maand</h2>
 
-  {Object.entries(omzetPerMaand).map(([maand, data]) => (
-    <div
-      key={maand}
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: 12,
-        borderBottom: "1px solid #eee",
-      }}
-    >
-      <strong>{maand}</strong>
-
-      <span>
-        Excl. BTW: {euro(data.omzet)}
-      </span>
-
-      <span>
-        BTW: {euro(data.btw)}
-      </span>
-
-      <strong>
-        Incl. BTW: {euro(data.omzet + data.btw)}
-      </strong>
-    </div>
-  ))}
-</section>
 
             
             <section style={{ ...s.panel, marginTop: 25 }}>
