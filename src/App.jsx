@@ -1017,6 +1017,10 @@ if (!session) {
     </div>
   ))}
 </section>
+
+            <h1 style={{ color: "red" }}>
+  TEST OMZET PER MAAND
+</h1>
             
             <section style={{ ...s.panel, marginTop: 25 }}>
               <h2>Laatste facturen</h2>
