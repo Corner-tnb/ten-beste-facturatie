@@ -746,10 +746,6 @@ function exporteerCSV() {
   const rows = [
     ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
   ];
-  const omzetPerMaand = {};
-
-alleFacturenBedrijf.forEach((f) => {
-  if (!f.datum) return;
 
   const delen = f.datum.split("-");
   const maand = `${delen[1]}-${delen[2]}`;
@@ -993,9 +989,7 @@ if (!session) {
 
             
             <section style={{ ...s.panel, marginTop: 25 }}>
-<h1 style={{ color: "red" }}>
-  TEST OMZET PER MAAND
-</h1>
+
               <h2>Laatste facturen</h2>
 
               {alleFacturenBedrijf.slice(0, 5).map((f) => (
