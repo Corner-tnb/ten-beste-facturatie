@@ -1018,11 +1018,11 @@ if (!session) {
   ))}
 </section>
 
-            <h1 style={{ color: "red" }}>
-  TEST OMZET PER MAAND
-</h1>
             
             <section style={{ ...s.panel, marginTop: 25 }}>
+<h1 style={{ color: "red" }}>
+  TEST OMZET PER MAAND
+</h1>
               <h2>Laatste facturen</h2>
 
               {alleFacturenBedrijf.slice(0, 5).map((f) => (
