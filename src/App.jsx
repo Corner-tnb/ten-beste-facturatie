@@ -917,6 +917,15 @@ if (!session) {
       )
     )}
   />
+              <Card
+  title="Omzet excl. BTW"
+  value={euro(
+    alleFacturenBedrijf.reduce(
+      (s, f) => s + Number(f.subtotaal || 0),
+      0
+    )
+  )}
+/>
 
   <Card
     title="Openstaand"
