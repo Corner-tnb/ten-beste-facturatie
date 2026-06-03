@@ -746,6 +746,24 @@ function exporteerCSV() {
   const rows = [
     ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
   ];
+  const omzetPerMaand = {};
+
+alleFacturenBedrijf.forEach((f) => {
+  if (!f.datum) return;
+
+  const delen = f.datum.split("-");
+  const maand = `${delen[1]}-${delen[2]}`;
+
+  if (!omzetPerMaand[maand]) {
+    omzetPerMaand[maand] = {
+      omzet: 0,
+      btw: 0,
+    };
+  }
+
+  omzetPerMaand[maand].omzet += Number(f.subtotaal || 0);
+  omzetPerMaand[maand].btw += Number(f.btw_bedrag || 0);
+});
 
   alleFacturenBedrijf.forEach((f) => {
     rows.push([
