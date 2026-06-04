@@ -14,28 +14,26 @@ export default function App() {
       iban: "NL85ABNA0120545004",
       startNummer: 14,
     },
-{
-  naam: "Ten Beste Investment B.V.",
-  adres: "Archimedesbaan 6-15",
-  plaats: "3439 ME Nieuwegein",
-  land: "Nederland",
+    {
+      naam: "Ten Beste Investment B.V.",
+      adres: "Archimedesbaan 6-15",
+      plaats: "3436 ME Nieuwegein",
+      land: "Nederland",
       kvk: "98613375",
       btw: "NL868569021B01",
       iban: "NL03ABNA0149841159",
       startNummer: 5,
     },
-
     {
-  naam: "Ten Beste Vastgoed B.V.",
-  adres: "Archimedesbaan 6-15",
-  plaats: "3439 ME Nieuwegein",
-  land: "Nederland",
-  kvk: "98475126",
-  btw: "NL868511389B01",
-  iban: "NL32ABNA0149717059",
-  startNummer: 1,
-},
-    
+      naam: "Ten Beste Vastgoed B.V.",
+      adres: "Archimedesbaan 6-15",
+      plaats: "3439 ME Nieuwegein",
+      land: "Nederland",
+      kvk: "98475126",
+      btw: "NL868511389B01",
+      iban: "NL32ABNA0149717059",
+      startNummer: 1,
+    },
   ];
 
   const [pagina, setPagina] = useState("dashboard");
@@ -757,13 +755,11 @@ const betaald = alleFacturenBedrijf
   .filter((f) => f.status === "Betaald")
   .reduce((s, f) => s + Number(f.totaal || 0), 0);
 
-  
 function exporteerCSV() {
   const rows = [
     ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
   ];
 
- 
   alleFacturenBedrijf.forEach((f) => {
     rows.push([
       f.factuurnummer || "",
@@ -981,15 +977,15 @@ if (!session) {
               <Card title="Open facturen" value={alleFacturenBedrijf.filter((f) => f.status === "Open").length} />
               <Card title="Betaalde facturen" value={alleFacturenBedrijf.filter((f) => f.status === "Betaald").length} />
             </section>
-       <button
+            <button
   onClick={exporteerCSV}
   style={{ ...s.greenButton, marginTop: 20 }}
 >
   Exporteer boekhouding CSV
 </button>
 
-
-  <h2>Laatste facturen</h2>
+            <section style={{ ...s.panel, marginTop: 25 }}>
+              <h2>Laatste facturen</h2>
 
               {alleFacturenBedrijf.slice(0, 5).map((f) => (
                 <div key={f.id} style={s.invoiceRow}>
@@ -1012,15 +1008,30 @@ if (!session) {
                     {f.status}
                   </span>
                 </div>
-))}
-</section>
+              ))}
+            </section>
 
-</>
-)}
+            <section style={{ ...s.panel, marginTop: 25 }}>
+              <h2>Openstaande facturen</h2>
 
-{pagina === "klanten" && (
-  <section style={s.panel}>
-    <h1>Klanten</h1>
+              {alleFacturenBedrijf
+                .filter((f) => f.status === "Open")
+                .map((f) => (
+                  <div key={f.id} style={s.invoiceRow}>
+                    <strong>{f.factuurnummer}</strong>
+                    <span>{f.klant_naam}</span>
+                    <span>{f.datum}</span>
+                    <strong>{euro(f.totaal)}</strong>
+                    <span style={s.statusOpen}>Open</span>
+                  </div>
+                ))}
+            </section>
+          </>
+        )}
+
+        {pagina === "klanten" && (
+          <section style={s.panel}>
+            <h1>Klanten</h1>
 
             <form onSubmit={klantOpslaan} style={s.formGrid}>
               {["bedrijfsnaam", "adres", "postcode", "plaats", "kvk", "btw", "voornaam", "achternaam", "email", "telefoon"].map((name) => (
