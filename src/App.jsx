@@ -1016,27 +1016,21 @@ if (!session) {
               ))}
             </section>
 
-            <section style={{ ...s.panel, marginTop: 25 }}>
-              <h2>Openstaande facturen</h2>
+<section style={{ ...s.panel, marginTop: 25 }}>
+  <h2>Omzet per maand</h2>
 
-              {alleFacturenBedrijf
-                .filter((f) => f.status === "Open")
-                .map((f) => (
-                  <div key={f.id} style={s.invoiceRow}>
-                    <strong>{f.factuurnummer}</strong>
-                    <span>{f.klant_naam}</span>
-                    <span>{f.datum}</span>
-                    <strong>{euro(f.totaal)}</strong>
-                    <span style={s.statusOpen}>Open</span>
-                  </div>
-                ))}
-            </section>
-          </>
-        )}
+  {Object.entries(omzetPerMaand).map(([maand, data]) => (
+    <div key={maand} style={s.invoiceRow}>
+      <strong>{maand}</strong>
+      <span>Excl. BTW: {euro(data.omzet)}</span>
+      <span>BTW: {euro(data.btw)}</span>
+      <strong>Incl. BTW: {euro(data.omzet + data.btw)}</strong>
+    </div>
+  ))}
+</section>
 
-        {pagina === "klanten" && (
-          <section style={s.panel}>
-            <h1>Klanten</h1>
+<section style={{ ...s.panel, marginTop: 25 }}>
+  <h2>Laatste facturen</h2>
 
             <form onSubmit={klantOpslaan} style={s.formGrid}>
               {["bedrijfsnaam", "adres", "postcode", "plaats", "kvk", "btw", "voornaam", "achternaam", "email", "telefoon"].map((name) => (
