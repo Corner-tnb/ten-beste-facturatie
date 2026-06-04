@@ -774,9 +774,12 @@ Met vriendelijke groet,
 
 ${bedrijf.naam}`;
 
-  window.location.href =
-    `mailto:${klant.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
+window.open(
+  `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+    klant.email
+  )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+  "_blank"
+);
   
 function exporteerCSV() {
   const rows = [
