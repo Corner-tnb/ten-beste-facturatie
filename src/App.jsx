@@ -981,19 +981,15 @@ if (!session) {
               <Card title="Open facturen" value={alleFacturenBedrijf.filter((f) => f.status === "Open").length} />
               <Card title="Betaalde facturen" value={alleFacturenBedrijf.filter((f) => f.status === "Betaald").length} />
             </section>
-            <button
+       <button
   onClick={exporteerCSV}
   style={{ ...s.greenButton, marginTop: 20 }}
 >
   Exporteer boekhouding CSV
 </button>
+
 <section style={{ ...s.panel, marginTop: 25 }}>
-
-
-            
-            <section style={{ ...s.panel, marginTop: 25 }}>
-
-              <h2>Laatste facturen</h2>
+  <h2>Laatste facturen</h2>
 
               {alleFacturenBedrijf.slice(0, 5).map((f) => (
                 <div key={f.id} style={s.invoiceRow}>
