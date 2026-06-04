@@ -755,6 +755,29 @@ const betaald = alleFacturenBedrijf
   .filter((f) => f.status === "Betaald")
   .reduce((s, f) => s + Number(f.totaal || 0), 0);
 
+  function mailFactuur(factuur) {
+  const klant =
+    klanten.find((k) => k.id === factuur.klant_id) || {};
+
+  if (!klant.email) {
+    alert("Deze klant heeft geen e-mailadres.");
+    return;
+  }
+
+  const subject = `Factuur ${factuur.factuurnummer}`;
+
+  const body = `Beste,
+
+In de bijlage vindt u factuur ${factuur.factuurnummer}.
+
+Met vriendelijke groet,
+
+${bedrijf.naam}`;
+
+  window.location.href =
+    `mailto:${klant.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+  
 function exporteerCSV() {
   const rows = [
     ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
@@ -1333,6 +1356,12 @@ if (!session) {
                     <button onClick={() => setPreviewFactuur(f)} style={s.blueButton}>Inzien</button>
                     <button onClick={() => openBewerken(f)} style={s.blueButton}>Bewerken</button>
                     <button onClick={() => downloadPdf(f)} style={s.blueButton}>PDF</button>
+                    <button
+  onClick={() => mailFactuur(f)}
+  style={s.greenButton}
+>
+  Mail
+</button>
 
                     {f.status !== "Betaald" ? (
                       <button onClick={() => wijzigStatus(f, "Betaald")} style={s.greenButton}>Betaald</button>
