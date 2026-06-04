@@ -988,7 +988,7 @@ if (!session) {
   Exporteer boekhouding CSV
 </button>
 
-<section style={{ ...s.panel, marginTop: 25 }}>
+
   <h2>Laatste facturen</h2>
 
               {alleFacturenBedrijf.slice(0, 5).map((f) => (
@@ -1017,8 +1017,12 @@ if (!session) {
 
 
 
-<section style={{ ...s.panel, marginTop: 25 }}>
-  <h2>Laatste facturen</h2>
+</>
+)}
+
+{pagina === "klanten" && (
+  <section style={s.panel}>
+    <h1>Klanten</h1>
 
             <form onSubmit={klantOpslaan} style={s.formGrid}>
               {["bedrijfsnaam", "adres", "postcode", "plaats", "kvk", "btw", "voornaam", "achternaam", "email", "telefoon"].map((name) => (
