@@ -984,7 +984,7 @@ if (!session) {
   Exporteer boekhouding CSV
 </button>
 
-            <section style={{ ...s.panel, marginTop: 25 }}>
+<section style={{ ...s.panel, marginTop: 25 }}>
   <h2>Omzet per maand</h2>
 
   {Object.entries(
@@ -996,14 +996,26 @@ if (!session) {
 
       const maand = `${delen[1]}-${delen[2]}`;
 
-      acc[maand] = (acc[maand] || 0) + Number(f.totaal || 0);
+      if (!acc[maand]) {
+        acc[maand] = {
+          excl: 0,
+          btw: 0,
+          incl: 0,
+        };
+      }
+
+      acc[maand].excl += Number(f.subtotaal || 0);
+      acc[maand].btw += Number(f.btw_bedrag || 0);
+      acc[maand].incl += Number(f.totaal || 0);
 
       return acc;
     }, {})
-  ).map(([maand, bedrag]) => (
+  ).map(([maand, data]) => (
     <div key={maand} style={s.invoiceRow}>
       <strong>{maand}</strong>
-      <strong>{euro(bedrag)}</strong>
+      <span>Excl. BTW: {euro(data.excl)}</span>
+      <span>BTW: {euro(data.btw)}</span>
+      <strong>Incl. BTW: {euro(data.incl)}</strong>
     </div>
   ))}
 </section>
