@@ -985,6 +985,30 @@ if (!session) {
 </button>
 
             <section style={{ ...s.panel, marginTop: 25 }}>
+  <h2>Omzet per maand</h2>
+
+  {Object.entries(
+    alleFacturenBedrijf.reduce((acc, f) => {
+      if (!f.datum) return acc;
+
+      const delen = String(f.datum).split("-");
+      if (delen.length < 3) return acc;
+
+      const maand = `${delen[1]}-${delen[2]}`;
+
+      acc[maand] = (acc[maand] || 0) + Number(f.totaal || 0);
+
+      return acc;
+    }, {})
+  ).map(([maand, bedrag]) => (
+    <div key={maand} style={s.invoiceRow}>
+      <strong>{maand}</strong>
+      <strong>{euro(bedrag)}</strong>
+    </div>
+  ))}
+</section>
+
+            <section style={{ ...s.panel, marginTop: 25 }}>
               <h2>Laatste facturen</h2>
 
               {alleFacturenBedrijf.slice(0, 5).map((f) => (
