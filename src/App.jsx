@@ -17,7 +17,7 @@ export default function App() {
 {
   naam: "Ten Beste Investment B.V.",
   adres: "Archimedesbaan 6-15",
-  plaats: "3436 ME Nieuwegein",
+  plaats: "3439 ME Nieuwegein",
   land: "Nederland",
       kvk: "98613375",
       btw: "NL868569021B01",
@@ -145,12 +145,15 @@ export default function App() {
   }
 
 async function haalVolgendFactuurnummer() {
+  const jaar = new Date().getFullYear();
+
   const { data: facturenData } = await supabase
     .from("facturen")
     .select("factuurnummer")
-    .eq("bedrijf", bedrijf.naam);
+    .eq("bedrijf", bedrijf.naam)
+    .like("factuurnummer", `${jaar}.%`);
 
-  let hoogste = bedrijf.startNummer - 1;
+  let hoogste = 0;
 
   (facturenData || []).forEach((f) => {
     const nr = Number(
@@ -162,7 +165,7 @@ async function haalVolgendFactuurnummer() {
 
   const nieuwNummer = hoogste + 1;
 
-  return `2026.${String(nieuwNummer).padStart(4, "0")}`;
+  return `${jaar}.${String(nieuwNummer).padStart(4, "0")}`;
 }
   
 
@@ -753,7 +756,7 @@ doc.line(15, 265, 195, 265);
 const betaald = alleFacturenBedrijf
   .filter((f) => f.status === "Betaald")
   .reduce((s, f) => s + Number(f.totaal || 0), 0);
-const omzetPerMaand = {};
+
   
 function exporteerCSV() {
   const rows = [
@@ -1016,18 +1019,7 @@ if (!session) {
               ))}
             </section>
 
-<section style={{ ...s.panel, marginTop: 25 }}>
-  <h2>Omzet per maand</h2>
 
-  {Object.entries(omzetPerMaand).map(([maand, data]) => (
-    <div key={maand} style={s.invoiceRow}>
-      <strong>{maand}</strong>
-      <span>Excl. BTW: {euro(data.omzet)}</span>
-      <span>BTW: {euro(data.btw)}</span>
-      <strong>Incl. BTW: {euro(data.omzet + data.btw)}</strong>
-    </div>
-  ))}
-</section>
 
 <section style={{ ...s.panel, marginTop: 25 }}>
   <h2>Laatste facturen</h2>
