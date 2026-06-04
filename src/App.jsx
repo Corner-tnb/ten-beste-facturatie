@@ -753,26 +753,14 @@ doc.line(15, 265, 195, 265);
 const betaald = alleFacturenBedrijf
   .filter((f) => f.status === "Betaald")
   .reduce((s, f) => s + Number(f.totaal || 0), 0);
-
+const omzetPerMaand = {};
+  
 function exporteerCSV() {
   const rows = [
     ["Factuurnummer", "Klant", "Datum", "Status", "Subtotaal", "BTW", "Totaal"],
   ];
 
-  const delen = f.datum.split("-");
-  const maand = `${delen[1]}-${delen[2]}`;
-
-  if (!omzetPerMaand[maand]) {
-    omzetPerMaand[maand] = {
-      omzet: 0,
-      btw: 0,
-    };
-  }
-
-  omzetPerMaand[maand].omzet += Number(f.subtotaal || 0);
-  omzetPerMaand[maand].btw += Number(f.btw_bedrag || 0);
-});
-
+ 
   alleFacturenBedrijf.forEach((f) => {
     rows.push([
       f.factuurnummer || "",
