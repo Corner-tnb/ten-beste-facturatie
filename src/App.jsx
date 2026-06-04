@@ -24,6 +24,18 @@ export default function App() {
       iban: "NL03ABNA0149841159",
       startNummer: 5,
     },
+
+    {
+  naam: "Ten Beste Vastgoed B.V.",
+  adres: "Archimedesbaan 6-15",
+  plaats: "3439 ME Nieuwegein",
+  land: "Nederland",
+  kvk: "98475126",
+  btw: "NL868511389B01",
+  iban: "NL32ABNA0149717059",
+  startNummer: 1,
+},
+    
   ];
 
   const [pagina, setPagina] = useState("dashboard");
