@@ -755,7 +755,7 @@ const betaald = alleFacturenBedrijf
   .filter((f) => f.status === "Betaald")
   .reduce((s, f) => s + Number(f.totaal || 0), 0);
 
-  function mailFactuur(factuur) {
+function mailFactuur(factuur) {
   const klant =
     klanten.find((k) => k.id === factuur.klant_id) || {};
 
@@ -769,17 +769,19 @@ const betaald = alleFacturenBedrijf
   const body = `Beste,
 
 In de bijlage vindt u factuur ${factuur.factuurnummer}.
+Graag verzoeken wij u deze factuur binnen 7 dagen te betalen.
 
 Met vriendelijke groet,
 
 ${bedrijf.naam}`;
 
-window.open(
-  `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-    klant.email
-  )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
-  "_blank"
-);
+  window.open(
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+      klant.email
+    )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    "_blank"
+  );
+}
   
 function exporteerCSV() {
   const rows = [
