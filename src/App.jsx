@@ -1012,10 +1012,8 @@ if (!session) {
                     {f.status}
                   </span>
                 </div>
-              ))}
-            </section>
-
-
+))}
+</section>
 
 </>
 )}
