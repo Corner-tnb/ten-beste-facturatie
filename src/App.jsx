@@ -675,12 +675,12 @@ regels.forEach((r) => {
     55
   );
 
-  doc.text(omschrijving, 20, y);
+doc.text(omschrijving, 20, y);
 
-  doc.text(String(r.aantal || 0), 85, y);
-  doc.text(euro(r.prijs), 112, y);
-  doc.text(`${r.btw_percentage || 0}%`, 146, y);
-  doc.text(euro(r.subtotaal), 170, y);
+doc.text(String(r.aantal || 0), 85, y);
+doc.text(euro(r.prijs), 132, y, { align: "right" });
+doc.text(`${r.btw_percentage || 0}%`, 146, y);
+doc.text(euro(r.subtotaal), 190, y, { align: "right" });
 
   const hoogte = omschrijving.length * 6;
 
