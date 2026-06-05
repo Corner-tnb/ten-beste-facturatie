@@ -654,7 +654,7 @@ doc.text(String(factuur.vervaldatum || "-"), 155, 130);
   doc.setFontSize(10);
 
   doc.text("Omschrijving", 20, y + 8);
-  doc.text("Aantal", 82, y + 8);
+  doc.text("Aantal", 85, y + 8);
   doc.text("Prijs", 112, y + 8);
   doc.text("BTW", 145, y + 8);
 doc.text("Excl. BTW", 168, y + 8);
@@ -664,25 +664,31 @@ doc.text("Excl. BTW", 168, y + 8);
   doc.setTextColor(20);
   doc.setFont("helvetica", "normal");
 
-  regels.forEach((r) => {
-    if (y > 225) {
-      doc.addPage();
-      y = 25;
-    }
+regels.forEach((r) => {
+  if (y > 225) {
+    doc.addPage();
+    y = 25;
+  }
 
-doc.text(String(r.omschrijving || "-"), 20, y);
-doc.text(String(r.aantal || 0), 85, y);
-doc.text(euro(r.prijs), 108, y);
-doc.text(`${r.btw_percentage || 0}%`, 146, y);
-doc.text(euro(r.subtotaal), 170, y);
+  const omschrijving = doc.splitTextToSize(
+    String(r.omschrijving || "-"),
+    55
+  );
 
-    doc.setDrawColor(225);
-    doc.line(15, y + 8, 195, y + 8);
+  doc.text(omschrijving, 20, y);
 
-    y += 15;
-  });
+  doc.text(String(r.aantal || 0), 85, y);
+  doc.text(euro(r.prijs), 112, y);
+  doc.text(`${r.btw_percentage || 0}%`, 146, y);
+  doc.text(euro(r.subtotaal), 170, y);
 
-  y += 12;
+  const hoogte = omschrijving.length * 6;
+
+  doc.setDrawColor(225);
+  doc.line(15, y + hoogte + 2, 195, y + hoogte + 2);
+
+  y += hoogte + 8;
+});
 
   const btwPercentage = regels[0]?.btw_percentage || 21;
 
