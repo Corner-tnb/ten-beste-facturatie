@@ -17,7 +17,7 @@ export default function App() {
     {
       naam: "Ten Beste Investment B.V.",
       adres: "Archimedesbaan 6-15",
-      plaats: "3436 ME Nieuwegein",
+      plaats: "3439 ME Nieuwegein",
       land: "Nederland",
       kvk: "98613375",
       btw: "NL868569021B01",
