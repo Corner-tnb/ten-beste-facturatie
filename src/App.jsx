@@ -34,6 +34,32 @@ export default function App() {
       iban: "NL32ABNA0149717059",
       startNummer: 1,
     },
+{
+  id: "uzg",
+  naam: "UZG B.V.",
+  adres: "Thorbeckesingel 9",
+  postcode: "3404 JD",
+  plaats: "IJsselstein",
+  land: "Nederland",
+  kvk: "98503707",
+  btw: "NL868523203B01",
+  iban: "NL80ABNA0148490891",
+  startNummer: 1
+},
+{
+  id: "ibay",
+  naam: "Ibay B.V.",
+  adres: "Kornalijnpad 31",
+  postcode: "3402 ZD",
+  plaats: "IJsselstein",
+  land: "Nederland",
+  kvk: "98495577",
+  btw: "NL868519339B01",
+  iban: "NL53ABNA0148521932",
+  startNummer: 1
+},
+
+    
   ];
 
   const [pagina, setPagina] = useState("dashboard");
