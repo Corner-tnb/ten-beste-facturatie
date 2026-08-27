@@ -670,7 +670,7 @@ doc.text(String(factuur.factuurnummer || "-"), 52, 84);
 doc.text(String(factuur.datum || "-"), 52, 92);
 doc.text(String(factuur.vervaldatum || "-"), 52, 100);
 
- let y = 136;
+ let y = 114;
 
   // Tabel
   doc.setFillColor(...blauw);
