@@ -722,31 +722,37 @@ doc.text(euro(r.subtotaal), 190, y, { align: "right" });
   doc.setFontSize(11);
   doc.setTextColor(20);
 
-  doc.text("Subtotaal", 115, y);
-  doc.text(euro(factuur.subtotaal), 170, y);
+const totaalY = 205;
 
-doc.text(`BTW (${btwPercentage}%)`, 115, y + 10);
-  doc.text(euro(factuur.btw_bedrag), 170, y + 14);
+doc.setFont("helvetica", "normal");
+doc.setFontSize(11);
+doc.setTextColor(20);
 
-  doc.setDrawColor(...blauw);
-  doc.setLineWidth(0.5);
-doc.line(105, y + 18, 195, y + 18);
+doc.text("Subtotaal", 115, totaalY);
+doc.text(euro(factuur.subtotaal), 170, totaalY);
 
-  // Totaal box
-  doc.setFillColor(235, 240, 255);
-doc.rect(110, y + 22, 85, 14, "F");
+doc.text(`BTW (${btwPercentage}%)`, 115, totaalY + 10);
+doc.text(euro(factuur.btw_bedrag), 170, totaalY + 10);
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(...blauw);
+doc.setDrawColor(...blauw);
+doc.setLineWidth(0.5);
+doc.line(105, totaalY + 18, 195, totaalY + 18);
 
-  doc.text("Totaal", 115, y + 33);
-  doc.text(euro(factuur.totaal), 158, y + 33);
+// Totaal box
+doc.setFillColor(235, 240, 255);
+doc.rect(110, totaalY + 22, 85, 14, "F");
 
-  // Betaaltekst vaste plek
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(20);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(16);
+doc.setTextColor(...blauw);
+
+doc.text("Totaal", 115, totaalY + 33);
+doc.text(euro(factuur.totaal), 158, totaalY + 33);
+
+// Betaaltekst vaste plek
+doc.setFont("helvetica", "normal");
+doc.setFontSize(10);
+doc.setTextColor(20);
 
   doc.text(
     "Wij verzoeken u vriendelijk om het factuurbedrag binnen 7 dagen na factuurdatum",
