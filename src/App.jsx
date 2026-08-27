@@ -657,17 +657,18 @@ async function downloadPdf(factuur) {
 doc.line(15, 110, 195, 110);
 
   // Factuur info
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(20);
-doc.text("Factuurnummer:", 110, 114);
-doc.text("Factuurdatum:", 110, 122);
-doc.text("Vervaldatum:", 110, 130);
+doc.setFont("helvetica", "bold");
+doc.setTextColor(20);
+
+doc.text("Factuurnummer:", 15, 84);
+doc.text("Factuurdatum:", 15, 92);
+doc.text("Vervaldatum:", 15, 100);
 
 doc.setFont("helvetica", "normal");
 
-doc.text(String(factuur.factuurnummer || "-"), 155, 114);
-doc.text(String(factuur.datum || "-"), 155, 122);
-doc.text(String(factuur.vervaldatum || "-"), 155, 130);
+doc.text(String(factuur.factuurnummer || "-"), 52, 84);
+doc.text(String(factuur.datum || "-"), 52, 92);
+doc.text(String(factuur.vervaldatum || "-"), 52, 100);
 
  let y = 136;
 
