@@ -625,9 +625,9 @@ async function downloadPdf(factuur) {
   doc.text(factuur.klant_naam || "-", 15, 52);
 
   doc.setFont("helvetica", "normal");
-  doc.text(klant.adres || "-", 15, 60);
-  doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 15, 68);
-  doc.text(klant.land || "Nederland", 15, 76);
+  doc.text(klant.adres || "-", 15, 58);
+  doc.text(`${klant.postcode || ""} ${klant.plaats || ""}`, 15, 64);
+  doc.text(klant.land || "Nederland", 15, 70);
 
   // Rechter blok bedrijf
   doc.setFont("helvetica", "bold");
