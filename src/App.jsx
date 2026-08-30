@@ -821,6 +821,52 @@ ${bedrijf.naam}`;
     "_blank"
   );
 }
+  async function downloadBackup() {
+  try {
+    const klantenResult = await supabase.from("klanten").select("*");
+    const productenResult = await supabase.from("producten").select("*");
+    const facturenResult = await supabase.from("facturen").select("*");
+    const regelsResult = await supabase.from("factuurregels").select("*");
+
+    if (
+      klantenResult.error ||
+      productenResult.error ||
+      facturenResult.error ||
+      regelsResult.error
+    ) {
+      throw new Error("Backup kon niet volledig worden opgehaald.");
+    }
+
+    const backup = {
+      gemaaktOp: new Date().toISOString(),
+      klanten: klantenResult.data || [],
+      producten: productenResult.data || [],
+      facturen: facturenResult.data || [],
+      factuurregels: regelsResult.data || [],
+    };
+
+    const blob = new Blob(
+      [JSON.stringify(backup, null, 2)],
+      { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `facturatie-backup-${new Date()
+      .toISOString()
+      .slice(0, 10)}.json`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    alert("Backup maken mislukt: " + error.message);
+  }
+}
   
 function exporteerCSV() {
   const rows = [
