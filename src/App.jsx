@@ -960,16 +960,24 @@ if (!session) {
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
   <strong>{session.user.email}</strong>
 
-  <button
-    onClick={() => setDarkMode(!darkMode)}
-    style={s.blueButton}
-  >
-    {darkMode ? "☀️ Light" : "🌙 Dark"}
-  </button>
+<button
+  onClick={() => setDarkMode(!darkMode)}
+  style={s.blueButton}
+>
+  {darkMode ? "☀️ Light" : "🌙 Dark"}
+</button>
 
-  <button onClick={logout} style={s.redButton}>
-    Uitloggen
-  </button>
+<button
+  onClick={downloadBackup}
+  style={s.blueButton}
+>
+  💾 Backup
+</button>
+
+<button onClick={logout} style={s.redButton}>
+  Uitloggen
+</button>
+  
 </div>
         </header>
 
