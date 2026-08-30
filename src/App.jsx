@@ -1448,8 +1448,21 @@ if (!session) {
                   <span>{f.factuurnummer}</span>
                   <span>{f.klant_naam}</span>
                   <strong>{euro(f.totaal)}</strong>
-                  <span style={f.status === "Betaald" ? s.statusPaid : s.statusOpen}>{f.status}</span>
-
+                  <span
+  style={
+    f.status === "Betaald"
+      ? s.statusPaid
+      : new Date(f.vervaldatum) < new Date()
+      ? { ...s.statusOpen, color: "red", fontWeight: "bold" }
+      : s.statusOpen
+  }
+>
+  {f.status === "Betaald"
+    ? "Betaald"
+    : new Date(f.vervaldatum) < new Date()
+    ? "Verlopen"
+    : "Open"}
+</span>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     <button onClick={() => setPreviewFactuur(f)} style={s.blueButton}>Inzien</button>
                     <button onClick={() => openBewerken(f)} style={s.blueButton}>Bewerken</button>
