@@ -22,7 +22,7 @@ export default function App() {
       kvk: "98613375",
       btw: "NL868569021B01",
       iban: "NL03ABNA0149841159",
-      startNummer: 5,
+      startNummer: 15,
     },
     {
       naam: "Ten Beste Vastgoed B.V.",
@@ -32,7 +32,7 @@ export default function App() {
       kvk: "98475126",
       btw: "NL868511389B01",
       iban: "NL32ABNA0149717059",
-      startNummer: 1,
+      startNummer: 4,
     },
 {
   id: "uzg",
@@ -171,24 +171,19 @@ export default function App() {
 async function haalVolgendFactuurnummer() {
   const jaar = new Date().getFullYear();
 
-  // Startnummer per bedrijf
-  const startNummers = {
-    "Cafetaria Ten Beste Corner B.V.": 14,
-    "Ten Beste Investment B.V.": 15,
-    "Ten Beste Vastgoed B.V.": 4,
-    "UZG": 1,
-    "IBAY": 1,
-  };
+  const startNummer = Number(bedrijf.startNummer || 1);
 
-  const startNummer = startNummers[bedrijf.naam] || 1;
-
-  const { data: facturenData } = await supabase
+  const { data: facturenData, error } = await supabase
     .from("facturen")
     .select("factuurnummer")
     .eq("bedrijf", bedrijf.naam)
     .like("factuurnummer", `${jaar}.%`);
 
-  // Begin één nummer vóór het gewenste startnummer
+  if (error) {
+    console.error("Fout bij ophalen factuurnummers:", error);
+    throw error;
+  }
+
   let hoogste = startNummer - 1;
 
   (facturenData || []).forEach((f) => {
@@ -196,14 +191,15 @@ async function haalVolgendFactuurnummer() {
       String(f.factuurnummer).split(".")[1]
     );
 
-    if (nr > hoogste) hoogste = nr;
+    if (!Number.isNaN(nr) && nr > hoogste) {
+      hoogste = nr;
+    }
   });
 
   const nieuwNummer = hoogste + 1;
 
   return `${jaar}.${String(nieuwNummer).padStart(4, "0")}`;
-}
-  
+}  
 
 
   function berekenRegel(r) {
