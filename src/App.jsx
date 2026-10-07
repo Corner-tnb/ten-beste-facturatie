@@ -171,13 +171,25 @@ export default function App() {
 async function haalVolgendFactuurnummer() {
   const jaar = new Date().getFullYear();
 
+  // Startnummer per bedrijf
+  const startNummers = {
+    "Cafetaria Ten Beste Corner B.V.": 14,
+    "Ten Beste Investment B.V.": 15,
+    "Ten Beste Vastgoed B.V.": 4,
+    "UZG": 1,
+    "IBAY": 1,
+  };
+
+  const startNummer = startNummers[bedrijf.naam] || 1;
+
   const { data: facturenData } = await supabase
     .from("facturen")
     .select("factuurnummer")
     .eq("bedrijf", bedrijf.naam)
     .like("factuurnummer", `${jaar}.%`);
 
-  let hoogste = 0;
+  // Begin één nummer vóór het gewenste startnummer
+  let hoogste = startNummer - 1;
 
   (facturenData || []).forEach((f) => {
     const nr = Number(
