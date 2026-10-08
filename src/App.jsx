@@ -850,7 +850,7 @@ Factuurdatum: ${factuur.datum}
 Vervaldatum: ${factuur.vervaldatum}
 Openstaand bedrag: ${euro(factuur.totaal)}
 
-Wij verzoeken u vriendelijk het openstaande bedrag binnen 7 dagen over te maken op rekeningnummer ${bedrijf.iban}, onder vermelding van het factuurnummer.
+Wij verzoeken u vriendelijk het openstaande bedrag per omgaande over te maken op rekeningnummer ${bedrijf.iban}, onder vermelding van het factuurnummer.
 
 Heeft u inmiddels betaald? Dan kunt u deze herinnering als niet verzonden beschouwen.
 
