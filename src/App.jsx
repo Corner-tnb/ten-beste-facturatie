@@ -829,6 +829,42 @@ ${bedrijf.naam}`;
     "_blank"
   );
 }
+
+  function mailHerinnering(factuur) {
+  const klant =
+    klanten.find((k) => k.id === factuur.klant_id) || {};
+
+  if (!klant.email) {
+    alert("Deze klant heeft geen e-mailadres.");
+    return;
+  }
+
+  const subject = `Betalingsherinnering - Factuur ${factuur.factuurnummer}`;
+
+  const body = `Geachte heer/mevrouw,
+
+Volgens onze administratie staat onderstaande factuur nog open.
+
+Factuurnummer: ${factuur.factuurnummer}
+Factuurdatum: ${factuur.datum}
+Vervaldatum: ${factuur.vervaldatum}
+Openstaand bedrag: ${euro(factuur.totaal)}
+
+Wij verzoeken u vriendelijk het openstaande bedrag binnen 7 dagen over te maken op rekeningnummer ${bedrijf.iban}, onder vermelding van het factuurnummer.
+
+Heeft u inmiddels betaald? Dan kunt u deze herinnering als niet verzonden beschouwen.
+
+Met vriendelijke groet,
+
+${bedrijf.naam}`;
+
+  window.open(
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+      klant.email
+    )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    "_blank"
+  );
+}
   async function downloadBackup() {
   try {
     const klantenResult = await supabase.from("klanten").select("*");
@@ -1481,6 +1517,31 @@ if (!session) {
 >
   Mail
 </button>
+
+                    {f.status === "Open" &&
+  f.vervaldatum &&
+  (() => {
+    const [dag, maand, jaar] = f.vervaldatum.split("-");
+
+    const vervaldatum = /^\d{4}$/.test(dag)
+      ? new Date(f.vervaldatum + "T00:00:00")
+      : new Date(Number(jaar), Number(maand) - 1, Number(dag));
+
+    const vandaag = new Date();
+    vandaag.setHours(0, 0, 0, 0);
+
+    return (
+      !Number.isNaN(vervaldatum.getTime()) &&
+      vervaldatum < vandaag && (
+        <button
+          onClick={() => mailHerinnering(f)}
+          style={s.redButton}
+        >
+          Herinnering
+        </button>
+      )
+    );
+  })()}
 
                     {f.status !== "Betaald" ? (
                       <button onClick={() => wijzigStatus(f, "Betaald")} style={s.greenButton}>Betaald</button>
