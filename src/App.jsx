@@ -1198,9 +1198,15 @@ if (!session) {
   style={
     f.status === "Betaald"
       ? s.statusPaid
-      : new Date(
-          f.vervaldatum.split("/").reverse().join("-")
-        ) < new Date()
+: f.vervaldatum &&
+  (() => {
+    const datum = f.vervaldatum.includes("/")
+      ? f.vervaldatum.split("/").reverse().join("-")
+      : f.vervaldatum;
+
+    return new Date(datum + "T00:00:00") <
+      new Date(new Date().toDateString());
+  })()
       ? s.statusLate
       : s.statusOpen
     
