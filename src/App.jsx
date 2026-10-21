@@ -1503,8 +1503,14 @@ if (!session) {
 >
   {f.status === "Betaald"
     ? "Betaald"
-    : new Date(f.vervaldatum) < new Date()
-    ? "Verlopen"
+    : f.vervaldatum &&
+      new Date(f.vervaldatum + "T00:00:00") <
+        new Date(new Date().toDateString())
+    ? `Verlopen – ${Math.round(
+        (new Date(new Date().toDateString()) -
+          new Date(f.vervaldatum + "T00:00:00")) /
+          (1000 * 60 * 60 * 24)
+      )} dagen`
     : "Open"}
 </span>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
