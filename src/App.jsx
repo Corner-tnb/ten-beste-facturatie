@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { supabase } from "./supabase.js";
 
-function dagenTeLaat(vervaldatum) { 
+function dagenTeLaat(vervaldatum) {
   if (!vervaldatum) return 0;
 
   const waarde = String(vervaldatum).trim();
@@ -1235,7 +1235,7 @@ if (!session) {
       {f.status === "Betaald"
         ? "Betaald"
         : dagenTeLaat(f.vervaldatum) > 0
-        ? `Verlopen ‚Äì ${dagenTeLaat(f.vervaldatum)} dagen`
+        ? `Verlopen - ${dagenTeLaat(f.vervaldatum)} dagen`
         : "Open"}
     </span>
   </div>
@@ -1535,7 +1535,7 @@ if (!session) {
       {f.status === "Betaald"
         ? "Betaald"
         : dagenTeLaat(f.vervaldatum) > 0
-        ? `Verlopen ‚Äì ${dagenTeLaat(f.vervaldatum)} dagen`
+        ? `Verlopen - ${dagenTeLaat(f.vervaldatum)} dagen`
         : "Open"}
     </span>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
