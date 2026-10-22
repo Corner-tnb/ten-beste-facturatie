@@ -2,6 +2,35 @@ import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { supabase } from "./supabase.js";
 
+function dagenTeLaat(vervaldatum) {
+  if (!vervaldatum) return 0;
+
+  const waarde = String(vervaldatum).trim();
+  let jaar, maand, dag;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(waarde)) {
+    [jaar, maand, dag] = waarde.split("-").map(Number);
+  } else if (/^\d{2}[/-]\d{2}[/-]\d{4}$/.test(waarde)) {
+    [dag, maand, jaar] = waarde.split(/[/-]/).map(Number);
+  } else {
+    return 0;
+  }
+
+  const vervaldag = Date.UTC(jaar, maand - 1, dag);
+  const vandaag = new Date();
+  const huidigeDag = Date.UTC(
+    vandaag.getFullYear(),
+    vandaag.getMonth(),
+    vandaag.getDate()
+  );
+
+  return Math.max(
+    0,
+    Math.round((huidigeDag - vervaldag) / 86400000)
+  );
+}
+
+
 export default function App() {
   const bedrijven = [
     {
@@ -1187,36 +1216,31 @@ if (!session) {
 
             <section style={{ ...s.panel, marginTop: 25 }}>
               <h2>Laatste facturen</h2>
+{alleFacturenBedrijf.slice(0, 5).map((f) => (
+  <div key={f.id} style={s.invoiceRow}>
+    <strong>{f.factuurnummer}</strong>
+    <span>{f.klant_naam}</span>
+    <span>{f.datum}</span>
+    <strong>{euro(f.totaal)}</strong>
 
-              {alleFacturenBedrijf.slice(0, 5).map((f) => (
-                <div key={f.id} style={s.invoiceRow}>
-                  <strong>{f.factuurnummer}</strong>
-                  <span>{f.klant_naam}</span>
-                  <span>{f.datum}</span>
-                  <strong>{euro(f.totaal)}</strong>
-                <span
-  style={
-    f.status === "Betaald"
-      ? s.statusPaid
-: f.vervaldatum &&
-  (() => {
-    const datum = f.vervaldatum.includes("/")
-      ? f.vervaldatum.split("/").reverse().join("-")
-      : f.vervaldatum;
-
-    return new Date(datum + "T00:00:00") <
-      new Date(new Date().toDateString());
-  })()
-      ? s.statusLate
-      : s.statusOpen
-    
-  }
->
-                    {f.status}
-                  </span>
-                </div>
-              ))}
-            </section>
+    <span
+      style={
+        f.status === "Betaald"
+          ? s.statusPaid
+          : dagenTeLaat(f.vervaldatum) > 0
+          ? s.statusLate
+          : s.statusOpen
+      }
+    >
+      {f.status === "Betaald"
+        ? "Betaald"
+        : dagenTeLaat(f.vervaldatum) > 0
+        ? `Verlopen – ${dagenTeLaat(f.vervaldatum)} dagen`
+        : "Open"}
+    </span>
+  </div>
+))}
+</section>
 
             <section style={{ ...s.panel, marginTop: 25 }}>
               <h2>Openstaande facturen</h2>
