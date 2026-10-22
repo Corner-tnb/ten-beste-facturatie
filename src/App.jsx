@@ -8,9 +8,9 @@ function dagenTeLaat(vervaldatum) {
   const waarde = String(vervaldatum).trim();
   let jaar, maand, dag;
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(waarde)) {
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(waarde)) {
     [jaar, maand, dag] = waarde.split("-").map(Number);
-  } else if (/^\d{2}[/-]\d{2}[/-]\d{4}$/.test(waarde)) {
+  } else if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(waarde)) {
     [dag, maand, jaar] = waarde.split(/[/-]/).map(Number);
   } else {
     return 0;
@@ -1037,14 +1037,14 @@ if (!session) {
   onClick={() => setDarkMode(!darkMode)}
   style={s.blueButton}
 >
-  {darkMode ? "☀️ Light" : "🌙 Dark"}
+  {darkMode ? "‚òÄÔ∏è Light" : "üåô Dark"}
 </button>
 
 <button
   onClick={downloadBackup}
   style={s.blueButton}
 >
-  💾 Backup
+  üíæ Backup
 </button>
 
 <button onClick={logout} style={s.redButton}>
@@ -1235,7 +1235,7 @@ if (!session) {
       {f.status === "Betaald"
         ? "Betaald"
         : dagenTeLaat(f.vervaldatum) > 0
-        ? `Verlopen – ${dagenTeLaat(f.vervaldatum)} dagen`
+        ? `Verlopen ‚Äì ${dagenTeLaat(f.vervaldatum)} dagen`
         : "Open"}
     </span>
   </div>
@@ -1535,7 +1535,7 @@ if (!session) {
       {f.status === "Betaald"
         ? "Betaald"
         : dagenTeLaat(f.vervaldatum) > 0
-        ? `Verlopen – ${dagenTeLaat(f.vervaldatum)} dagen`
+        ? `Verlopen ‚Äì ${dagenTeLaat(f.vervaldatum)} dagen`
         : "Open"}
     </span>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -1760,7 +1760,7 @@ function ProductRegel({ r, i, producten, kiesProduct, updateRegel, verwijderRege
       </select>
 
       <strong>{euro(b.totaal)}</strong>
-      <button type="button" onClick={() => verwijderRegel(i)} style={s.redButton}>×</button>
+      <button type="button" onClick={() => verwijderRegel(i)} style={s.redButton}>√ó</button>
     </div>
   );
 }
@@ -2044,3 +2044,4 @@ invoiceRow: {
   textAlign: "center",
 },
 };
+
