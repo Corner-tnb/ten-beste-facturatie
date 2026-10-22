@@ -1517,32 +1517,27 @@ if (!session) {
                 </select>
               </div>
 
-              {facturenBedrijf.map((f) => (
-                <div key={f.id} style={s.invoiceRow}>
-                  <span>{f.factuurnummer}</span>
-                  <span>{f.klant_naam}</span>
-                  <strong>{euro(f.totaal)}</strong>
-                  <span
-  style={
-    f.status === "Betaald"
-      ? s.statusPaid
-      : new Date(f.vervaldatum) < new Date()
-      ? { ...s.statusOpen, color: "red", fontWeight: "bold" }
-      : s.statusOpen
-  }
->
-  {f.status === "Betaald"
-    ? "Betaald"
-    : f.vervaldatum &&
-      new Date(f.vervaldatum + "T00:00:00") <
-        new Date(new Date().toDateString())
-    ? `Verlopen – ${Math.round(
-        (new Date(new Date().toDateString()) -
-          new Date(f.vervaldatum + "T00:00:00")) /
-          (1000 * 60 * 60 * 24)
-      )} dagen`
-    : "Open"}
-</span>
+{facturenBedrijf.map((f) => (
+  <div key={f.id} style={s.invoiceRow}>
+    <span>{f.factuurnummer}</span>
+    <span>{f.klant_naam}</span>
+    <strong>{euro(f.totaal)}</strong>
+
+    <span
+      style={
+        f.status === "Betaald"
+          ? s.statusPaid
+          : dagenTeLaat(f.vervaldatum) > 0
+          ? s.statusLate
+          : s.statusOpen
+      }
+    >
+      {f.status === "Betaald"
+        ? "Betaald"
+        : dagenTeLaat(f.vervaldatum) > 0
+        ? `Verlopen – ${dagenTeLaat(f.vervaldatum)} dagen`
+        : "Open"}
+    </span>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     <button onClick={() => setPreviewFactuur(f)} style={s.blueButton}>Inzien</button>
                     <button onClick={() => openBewerken(f)} style={s.blueButton}>Bewerken</button>
