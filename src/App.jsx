@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { supabase } from "./supabase.js";
 
-function dagenTeLaat(vervaldatum) {
+function dagenTeLaat(vervaldatum) { 
   if (!vervaldatum) return 0;
 
   const waarde = String(vervaldatum).trim();
