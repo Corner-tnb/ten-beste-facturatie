@@ -31,6 +31,20 @@ function dagenTeLaat(vervaldatum) {
 }
 
 
+function toonDatum(datum) {
+  if (!datum) return "-";
+  const waarde = String(datum).trim();
+  let dag, maand, jaar;
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(waarde)) {
+    [jaar, maand, dag] = waarde.split("-");
+  } else if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(waarde)) {
+    [dag, maand, jaar] = waarde.split(/[/-]/);
+  } else {
+    return waarde;
+  }
+  return `${String(dag).padStart(2, "0")}-${String(maand).padStart(2, "0")}-${jaar}`;
+}
+
 export default function App() {
   const bedrijven = [
     {
@@ -1037,14 +1051,14 @@ if (!session) {
   onClick={() => setDarkMode(!darkMode)}
   style={s.blueButton}
 >
-  {darkMode ? "‚òÄÔ∏è Light" : "üåô Dark"}
+  {darkMode ? "Light" : "Dark"}
 </button>
 
 <button
   onClick={downloadBackup}
   style={s.blueButton}
 >
-  üíæ Backup
+  Backup
 </button>
 
 <button onClick={logout} style={s.redButton}>
@@ -1521,6 +1535,8 @@ if (!session) {
   <div key={f.id} style={s.invoiceRow}>
     <span>{f.factuurnummer}</span>
     <span>{f.klant_naam}</span>
+    <span>Factuurdatum: {toonDatum(f.datum)}</span>
+    <span>Vervaldatum: {toonDatum(f.vervaldatum)}</span>
     <strong>{euro(f.totaal)}</strong>
 
     <span
