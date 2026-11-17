@@ -103,6 +103,18 @@ export default function App() {
 },
 
     
+  {
+    id: "cafetaria-ten-beste",
+    naam: "Cafetaria Ten Beste B.V.",
+    adres: "Predikherenstraat 2",
+    postcode: "3512 TN",
+    plaats: "Utrecht",
+    land: "Nederland",
+    kvk: "98495534",
+    btw: "NL868519327B01",
+    iban: "NL65ABNA0405877072",
+    startNummer: 1,
+  },
   ];
 
   const [pagina, setPagina] = useState("dashboard");
@@ -690,7 +702,7 @@ async function downloadPdf(factuur) {
   doc.setFontSize(11);
   doc.setTextColor(20);
   doc.text(bedrijf.adres || "-", 195, 32, { align: "right" });
-  doc.text(bedrijf.plaats || "-", 195, 40, { align: "right" });
+  doc.text([bedrijf.postcode, bedrijf.plaats].filter(Boolean).join(" ") || "-", 195, 40, { align: "right" });
   doc.text(bedrijf.land || "Nederland", 195, 48, { align: "right" });
 
   doc.setFont("helvetica", "bold");
